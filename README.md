@@ -3,7 +3,7 @@
 > "Programming should be interactive, as beautiful as possible, modular, and it should generate assets that are easy to use and learn." -- from
 http://michaelochurch.wordpress.com/2013/08/07/why-clojure-will-win/
 
-![main_2right-angle-jig.jpg]
+![A jig](main_2right-angle-jig.jpg)
 
 Jig is an application harness providing a beautifully interactive
 development experience for Clojure projects.
@@ -238,7 +238,7 @@ You can also view the component dependency graph from the REPL :-
 
     user> (graph)
 
-![component-dependencies.png]
+![Component dependency between X and Y](component-dependencies.png)
 
 ### Built-in components
 
