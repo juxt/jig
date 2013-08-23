@@ -1,12 +1,11 @@
 # Jig
 
-> "Programming should be interactive, as beautiful as possible, modular, and it should generate assets that are easy to use and learn." -- from
-http://michaelochurch.wordpress.com/2013/08/07/why-clojure-will-win/
+> “Programming should be interactive, as beautiful as possible, modular, and it should generate assets that are easy to use and learn.” – [Michael O. Church](http://michaelochurch.wordpress.com/2013/08/07/why-clojure-will-win/)
 
 ![A jig](main_2right-angle-jig.jpg)
 
-Jig is an application harness providing a beautifully interactive
-development experience for Clojure projects.
+Jig is an __application harness__ providing a beautifully interactive
+development experience __for Clojure projects__.
 
 I wrote Jig because I needed the ability to create new Clojure projects
 quickly without having to maintain a development harness for each
@@ -31,19 +30,18 @@ own requirements.
 
 Jig 'embraces and extends' Stuart Sierra's excellent
 [reloaded workflow](http://thinkrelevance.com/blog/2013/06/04/clojure-workflow-reloaded)
-pattern.
-
-Therefore it's important that you're familiar with this pattern because
-Jig builds on it.
+pattern. Therefore it's important that you're familiar with this pattern
+because Jig builds on it.
 
 ### Modularity
 
-Stuart describes the System Constructor which represents the all the
-state of a system. This is just a Clojure map (or record). Jig provides
-a System Constructor that delegates the job of creating the system to
-components, each component having the same lifecycle interface as Stuart
-describes: ```init```, ```start``` and ```stop```. The System is
-creating by threading it through all the components.
+Stuart describes the System Constructor which represents all the _state_
+of a system. This is usually a single Clojure map (or record). Jig
+provides an implementation of the System Constructor that delegates the
+job of creating the system to components, each component having the same
+lifecycle interface as Stuart describes: ```init```, ```start``` and
+```stop```. The System is creating by threading it through all the
+components.
 
 A reset stops and starts all components. Components are initialized and
 started (in dependency order) and stopped (in the reverse order)

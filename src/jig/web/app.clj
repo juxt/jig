@@ -16,14 +16,8 @@
    [clojure.tools.logging :refer :all])
   (:import (jig Lifecycle)))
 
-(defn add-web-context [system config]
-  (if-let [ctx (:jig.web/context config)]
-    (assoc-in system [(:jig/id config) :jig.web/context] ctx)
-    system))
-
 (deftype Component [config]
   Lifecycle
-
   (init [_ system]
     (-> system
         (assoc-in
@@ -31,18 +25,16 @@
           {:scheme (or (:jig/scheme config) :http)
            :host (:jig/hostname config)
            :app-name (:jig/id config)})
-        (add-web-context config)
+        (assoc-in [(:jig/id config) :jig.web/routes] [])
         (update-in [(:jig.web/server config) :app-names] conj (:jig/id config))))
-
   (start [_ system] system)
-
   (stop [_ system] system))
 
-
 (defn add-routes
-  "Contribute Pedestal routes to an application within a system. The app
-  name must be specified in the config under the :jig.web/app-name key."
+  "A convenience function to contribute Pedestal routes to an
+  application within the System. The app name must be specified in the
+  config under the :jig.web/app-name key."
   [system config routes]
   (update-in system
              [(:jig.web/app-name config) :jig.web/routes]
-             conj routes))
+             conj [(vec (cons (or (get-in config [:jig.web/context]) "/") routes))]))

@@ -14,7 +14,7 @@
          '(clojure.java [shell :refer (sh)]
                         [io :as io]))
 
-(def default-version "0.0.1")
+(def default-version "0.0.1-SNAPSHOT")
 
 (defn head-ok []
   (-> (sh "git" "rev-parse" "--verify" "HEAD")
@@ -93,21 +93,26 @@
                  [org.clojure/data.zip "0.1.1"]
                  ;; Markdown
                  [endophile "0.1.0"]
+                 ;; Clojurescript
+                 [org.clojure/clojurescript "0.0-1586"]
+                 [domina "1.0.1"]
+                 ;; Pedestal app
+                 [io.pedestal/pedestal.app "0.1.10"]
+                 [io.pedestal/pedestal.app-tools "0.1.10"]
                  ]
 
   ;; Only for core.async, remove when possible.
   :repositories {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"}
 
-  ;; Direct access to source project for now, but eventually use lein aether to find projects.
+  ;; Direct access to source project for now, but eventually use lein's aether to find projects.
   :source-paths ["src"
                  "examples/docsite/src"
-                 "/home/malcolm/Dropbox/JUXT/juxtweb/src"
-                 "/home/malcolm/Dropbox/JUXT/accounting/jig"
-                 "/home/malcolm/Dropbox/JUXT/accounting/src"
-                 ] ;
-  :resource-paths ["config"
-                   "/home/malcolm/Dropbox/JUXT/juxtweb/resources"
-                   "/home/malcolm/Dropbox/JUXT/accounting/resources"]
+                 ;; >>> Add paths to your projects' source directories here
+                 ]
+  :resource-path ["resources"
+                   "config"
+                   ;; >>> Add paths to your projects' resource directories here
+                   ]
 
   :profiles {:dev {:dependencies [[org.clojure/tools.namespace "0.2.4"]]
                    :source-paths ["repl"]}}

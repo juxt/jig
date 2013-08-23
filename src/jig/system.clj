@@ -24,7 +24,15 @@
    [loom.alg :refer (post-traverse dag? topsort)]))
 
 (defn instantiate [{component :jig/component :as config}]
+  (when (nil? component)
+    (throw (ex-info (format "Component is nil in config: %s" config) config)))
   (infof "Resolving namespace: %s" (symbol (namespace component)))
+
+;; TODO
+  (when (nil? (symbol (namespace component)))
+    (throw (ex-info (format "Namespace not found: %s" (symbol (namespace component)))
+                    {})))
+
   (require (symbol (namespace component)))
   (infof "Instantiating component: %s" component)
   (let [typ (ns-resolve (symbol (namespace component)) (symbol (name component)))]
@@ -48,27 +56,35 @@
 
 (defn init-components
   "Instantiate components and return a map for each, in dependency order, dependants last"
-  [components]
+  [{:keys [components] :as config}]
   (for [id (get-dependency-order components)]
     (if-let [c (get components id)]
-      (let [c-with-id (assoc c :jig/id id)]
-        (assoc c-with-id :jig/instance (instantiate c-with-id)))
+      (let [c++ (-> c
+                    (assoc :jig/id id)
+                    (assoc :jig/config config))]
+        (assoc c++ :jig/instance (instantiate c++)))
       (throw
        (ex-info
         (format "Component '%s' referenced as a dependency but is not contained in the map" id)
         {:id id})))))
 
+(defn validate-system [system component phase]
+  (if (nil? system)
+    (throw (ex-info (format "Bad component returned nil for system on %s: %s" phase component) component)))
+  system)
+
 (defn init
   "Initialize the system components"
   [{:keys [components] :as config}]
   (infof "Initializing system with config :-\n%s" (with-out-str (pprint config)))
-  (let [component-instances (init-components components)]
+  (let [component-instances (init-components config)]
     (infof "Components order is %s" (apply str (interpose ", " (map :jig/id component-instances))))
     (infof "Components to init are :-\n%s" (with-out-str (pprint component-instances)))
     (let [system
           (reduce (fn [system component]
                     (try
                       (-> (jig/init (:jig/instance component) system)
+                          (validate-system component "init")
                           (update-in [:jig/components] conj component))
                       (catch Exception e
                         (errorf e "Failed to initialize component: %s" component)
@@ -90,6 +106,7 @@
                     (infof "Starting component '%s' :-\n%s"
                            (:jig/id component) (with-out-str (pprint component)))
                     (-> (jig/start (:jig/instance component) system)
+                        (validate-system component "start")
                         (update-in [:jig/components] conj component))
                     (catch Exception e
                       (errorf e "Failed to start component: %s" component)
