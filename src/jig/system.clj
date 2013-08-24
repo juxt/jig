@@ -60,8 +60,7 @@
   (for [id (get-dependency-order components)]
     (if-let [c (get components id)]
       (let [c++ (-> c
-                    (assoc :jig/id id)
-                    (assoc :jig/config config))]
+                    (assoc :jig/id id))]
         (assoc c++ :jig/instance (instantiate c++)))
       (throw
        (ex-info

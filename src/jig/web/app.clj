@@ -13,6 +13,7 @@
   (:require
    jig
    [clojure.pprint :refer (pprint)]
+   [io.pedestal.service.interceptor :refer (definterceptorfn before)]
    [clojure.tools.logging :refer :all])
   (:import (jig Lifecycle)))
 
@@ -30,6 +31,14 @@
   (start [_ system] system)
   (stop [_ system] system))
 
+;; TODO Replace with defbefore?
+(definterceptorfn
+  inject-component-config
+  [c]
+  (before
+   (fn [context]
+     (assoc context :component c))))
+
 (defn add-routes
   "A convenience function to contribute Pedestal routes to an
   application within the System. The app name must be specified in the
@@ -37,4 +46,7 @@
   [system config routes]
   (update-in system
              [(:jig.web/app-name config) :jig.web/routes]
-             conj [(vec (cons (or (get-in config [:jig.web/context]) "/") routes))]))
+             conj [(vec (concat
+                         [(or (get-in config [:jig.web/context]) "/")
+                          ^:interceptors [(inject-component-config config)]]
+                         routes))]))

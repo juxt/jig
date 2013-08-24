@@ -7,25 +7,6 @@
 Jig is an __application harness__ providing a beautifully interactive
 development experience __for Clojure projects__.
 
-I wrote Jig because I needed the ability to create new Clojure projects
-quickly without having to maintain a development harness for each
-one. As I make a small improvement to one development harness, I don't
-want the hassle of going through all my other projects to update them in
-the same way, but neither do I want dozens of development harnesses that
-differ from each other. _I want one development harness I can use against
-all my Leiningen-based projects._
-
-Plus I want the option of deploying early versions of new projects
-quickly, without going to the hassle of setting up a new server or even
-incurring the cost of a dedicated JVM (200Mb is not an insignificant
-overhead when you have dozens of Clojure-based web applications). I'd
-like to hook on new web applications onto an existing Clojure web
-server.
-
-If you have these needs too, you might find Jig really useful. I
-encourage you to fork it so you have the option of bending it to your
-own requirements.
-
 ## Features and benefits
 
 Jig 'embraces and extends' Stuart Sierra's excellent
@@ -56,12 +37,16 @@ options at deploy time.
 For example, you can deploy all your components in a single JVM for a
 test environment, while in production you could distribute components
 across multiple JVMs, for scaleability. If you are forced to deploy lots
-of small JVMs, in all environments, this can be a very inefficient use
-of memory. I prefer to run a smaller number of JVMs, each with more
-memory. Developing Clojure applications as monolithic systems works well
-to begin with but can reduce flexibility down the road.
+of small JVMs, in all environments, this can be an inefficient use of
+precious memory. I prefer to run a smaller number of JVMs, each with
+more memory. Developing Clojure applications as monolithic systems works
+well to begin with but can reduce flexibility down the road.
 
-There are other benefits too, beyond the scope of this README.
+I want the option of deploying early versions of new projects quickly,
+without the hassle of setting up a new server or incurring the cost of a
+dedicated JVM (200Mb is not an insignificant overhead when you have
+dozens of Clojure-based web applications). Jig lets me quickly hook up
+new web applications and services onto an existing Clojure deployment.
 
 ### Separation of dev-workflow from application code
 
@@ -74,6 +59,14 @@ You can also fork and improve Jig to your own requirements.
 
 One Jig project can be used against many different projects, even
 simultaneously (see Components)
+
+I wrote Jig because I wanted to create new Clojure projects quickly
+without having to maintain the development harness for each one. As I
+make a small improvement to one development harness, I don't want the
+hassle of going through all my other projects to update them in the same
+way, but neither do I want dozens of development harnesses that differ
+from each other. _I want one development harness, re-usable 'jig' that I can
+use against multiple Leiningen-based projects._
 
 ### Configuration
 
@@ -336,7 +329,7 @@ bother.
 
 ## FAQ
 
-### But Clojure already does code reloading! Why do I need all this stuff?
+But Clojure already does code reloading! Why do I need all this stuff?
 
 Clojure, being a LISP, allows you to reload functions at will. But
 Stuart's pattern (which Jig builds on) extends this to state,
@@ -352,14 +345,16 @@ Jig is trying to provide you with a better development experience, while
 nudging you towards a modular architecture that will help you when your
 system grows to a certain size.
 
-### Where can I find an example of a real project using Jig?
+
+Where can I find an example of a real project using Jig?
 
 JUXT Accounting is a full application that is developed with Jig. Find more details here: [https://github.com/juxt/juxt-accounting]
 
 JUXT's [website](https://juxt.pro) also uses Jig, for both development and deployment.
 [https://github.com/juxt/juxtweb]
 
-### What's the relationship between Jig and Up?
+
+What's the relationship between Jig and Up?
 
 [Up](https://github.com/malcolmsparks/up) is deprecated, Jig replaces it
 (and has stolen all the worthy bits).

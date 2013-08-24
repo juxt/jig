@@ -20,6 +20,7 @@
    [io.pedestal.service.http.route.definition :as routedef])
   (:import (jig Lifecycle)))
 
+;; TODO Replace with defbefore?
 (definterceptorfn
   inject-system
   "A function that creates an interceptor that injects the System (and url-for) into

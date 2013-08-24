@@ -31,23 +31,22 @@ be included in a production build of the application."
   development."
   nil)
 
-(defn config
-  "Read the config from the config file. Usually this is config.edn (or
-  config.clj if evaluation is desired). To to avoid merge issues with
-  other's configuration, config.* files are ignored by git. To bootstrap,
-  we use sample.config.edn."
-  []
-  (when-let [res (or
-                (io/resource "config.edn")
-                (io/resource "config.clj")
-                ;; if no jig.edn, we take from sample.jig.edn
-                (io/resource "sample.config.edn"))]
-    (->
-     (case (second (re-matches #".*\.(.*)" (.getFile res)))
-       "edn" (edn/read-string (slurp res))
-       "clj" (read-string (slurp res)) ; respecting system setting of *read-eval*
-       (throw (Exception. (format "No reader for %s" res))))
-     (assoc :resource res))))
+(defn read-resource [res]
+  (case (second (re-matches #".*\.(.*)" (.getFile res)))
+    "edn" (edn/read-string (slurp res))
+    "clj" (read-string (slurp res)) ; respecting system setting of *read-eval*
+    (throw (Exception. (format "No reader for %s" res)))))
+
+(defn config []
+  "Read the config from the config-resources. Usually this is
+  config.edn (or config.clj if evaluation is desired). To to avoid merge
+  issues with other's configuration, config.* files are ignored by
+  git. To bootstrap, we use sample.config.edn."
+  (apply merge-with merge
+         (map #(some-> (first (keep io/resource %))
+                       read-resource) [["config.edn"
+                                         "config.clj"
+                                         "sample.config.edn"]])))
 
 (defn init
   "Creates and initializes the system in the Var #'system."
