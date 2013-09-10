@@ -13,7 +13,7 @@
   :juxtweb/web {:jig/component jig.web.app/Component
                 :jig/dependencies [:server]
                 :jig/scheme :http
-                :jig/hostname "local.juxt.pro"
+                :jig/hostname "localhost"
                 :jig.web/server :server
                 }
 
