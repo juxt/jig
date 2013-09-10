@@ -99,6 +99,8 @@
                  ;; Pedestal app
                  [io.pedestal/pedestal.app "0.1.10"]
                  [io.pedestal/pedestal.app-tools "0.1.10"]
+                 ;; JTidy
+                 [jtidy "4aug2000r7-dev"]
                  ]
 
   ;; Only for core.async, remove when possible.
