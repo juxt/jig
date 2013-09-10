@@ -63,6 +63,8 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [core.async "0.1.0-SNAPSHOT"]
+                 ;; Tracing
+                 [org.clojure/tools.trace "0.7.5"]
                  ;; Logging
                  [org.clojure/tools.logging "0.2.6"]
                  [ch.qos.logback/logback-classic "1.0.7" :exclusions [org.slf4j/slf4j-api]]
