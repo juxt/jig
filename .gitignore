@@ -11,5 +11,4 @@ pom.xml.asc
 .lein-plugins
 .lein-repl-history
 /logs/
-/config/config.*
 /todo.org

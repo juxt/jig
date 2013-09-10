@@ -111,12 +111,11 @@
   ;; Direct access to source project for now, but eventually use lein's aether to find projects.
   :source-paths ["src"
                  "examples/docsite/src"
-                 ;; >>> Add paths to your projects' source directories here
+                 "../juxtweb/src"
                  ]
-  :resource-path ["resources"
+  :resource-paths ["resources"
                    "config"
-                   ;; >>> Add paths to your projects' resource directories here
-                   ]
+                   "../juxtweb/resources"]
 
   :profiles {:dev {:dependencies [[org.clojure/tools.namespace "0.2.4"]]
                    :source-paths ["repl"]}}
