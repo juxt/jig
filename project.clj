@@ -62,7 +62,9 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.5.1"]
-                 [core.async "0.1.0-SNAPSHOT"]
+;;                 [core.async "0.1.0-SNAPSHOT"]
+                 ;; Leiningen
+                 [leiningen-core "2.1.0"]
                  ;; Tracing
                  [org.clojure/tools.trace "0.7.5"]
                  ;; Logging
@@ -77,32 +79,8 @@
                  [io.pedestal/pedestal.service "0.1.10"]
                  ;; (with jetty)
                  [io.pedestal/pedestal.jetty "0.1.10"]
-                 ;; Database
-                 [com.datomic/datomic-free "0.8.4007" :exclusions [org.slf4j/slf4j-nop]]
-                 ;; Time!
-                 [clj-time "0.5.1"]
-                 ;; Money!
-                 [clojurewerkz/money "1.3.0"]
-                 ;; Printing
-                 [clj-pdf "1.10.0"]
-                 ;; Hiccup for HTML generation
-                 [hiccup "1.0.4"]
-                 ;; CSS
+                 ;; CSS for examples
                  [garden "0.1.0-beta6"]
-                 ;; Stencil for templating
-                 [stencil "0.3.2"]
-                 ;; Zippers
-                 [org.clojure/data.zip "0.1.1"]
-                 ;; Markdown
-                 [endophile "0.1.0"]
-                 ;; Clojurescript
-                 [org.clojure/clojurescript "0.0-1586"]
-                 [domina "1.0.1"]
-                 ;; Pedestal app
-                 [io.pedestal/pedestal.app "0.1.10"]
-                 [io.pedestal/pedestal.app-tools "0.1.10"]
-                 ;; JTidy
-                 [jtidy "4aug2000r7-dev"]
                  ]
 
   ;; Only for core.async, remove when possible.
@@ -111,12 +89,31 @@
   ;; Direct access to source project for now, but eventually use lein's aether to find projects.
   :source-paths ["src"
                  "examples/docsite/src"
-                 "../juxtweb/src"
+;;                 "../juxtweb/src"
                  ]
   :resource-paths ["resources"
                    "config"
-                   "../juxtweb/resources"]
+                   "../juxtweb/resources"
+                   ]
 
   :profiles {:dev {:dependencies [[org.clojure/tools.namespace "0.2.4"]]
                    :source-paths ["repl"]}}
+  )
+
+
+(comment
+  [com.datomic/datomic-free "0.8.4007" :exclusions [org.slf4j/slf4j-nop]]
+  ;; Time!
+  [clj-time "0.5.1"]
+  ;; Money!
+  [clojurewerkz/money "1.3.0"]
+  ;; Printing
+  [clj-pdf "1.10.0"]
+  ;; Clojurescript
+  [org.clojure/clojurescript "0.0-1586"]
+  [domina "1.0.1"]
+  ;; Pedestal app
+  [io.pedestal/pedestal.app "0.1.10"]
+  [io.pedestal/pedestal.app-tools "0.1.10"]
+
   )

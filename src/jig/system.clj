@@ -19,28 +19,50 @@
     [logging :refer :all]]
    [clojure.pprint :refer (pprint)]
    [jig :as jig]
+   [leiningen.core.project :as project]
+   [leiningen.core.classpath :as classpath]
    [loom.graph :refer (graph digraph)]
    [loom.io :refer (view)]
-   [loom.alg :refer (post-traverse dag? topsort)]))
+   [loom.alg :refer (post-traverse dag? topsort)])
+  (:import (clojure.lang DynamicClassLoader)))
 
-(defn instantiate [{component :jig/component :as config}]
+(defmacro with-class-loading-context [class-loader & body]
+  `((fn []
+      (when ~class-loader
+        (. clojure.lang.Var (pushThreadBindings {clojure.lang.Compiler/LOADER
+                                                 ~class-loader})))
+      (try
+        ~@body
+        (finally
+          (when ~class-loader
+            (. clojure.lang.Var (popThreadBindings))))))))
+
+(defn instantiate [{component :jig/component project :jig/project :as config}]
   (when (nil? component)
     (throw (ex-info (format "Component is nil in config: %s" config) config)))
   (infof "Resolving namespace: %s" (symbol (namespace component)))
 
-;; TODO
   (when (nil? (symbol (namespace component)))
     (throw (ex-info (format "Namespace not found: %s" (symbol (namespace component)))
                     {})))
-
-  (require (symbol (namespace component)))
-  (infof "Instantiating component: %s" component)
-  (let [typ (ns-resolve (symbol (namespace component)) (symbol (name component)))]
-    (when (nil? typ) (throw (Exception. (format "Cannot find component: %s" component))))
-    (let [ctr (.getConstructor typ (into-array Class [Object]))]
-      (when (nil? ctr)
-        (throw (Exception. (format "Component must have a no-arg constructor: %s" component))))
-      (.newInstance ctr (into-array [config])))))
+  (let [cloader
+        (some->>
+         project
+         project/read
+         classpath/get-classpath
+         (map (comp io/as-url io/as-file))
+         into-array
+         (java.net.URLClassLoader.)
+         (DynamicClassLoader.))]
+    (with-class-loading-context cloader
+      (require (symbol (namespace component)))
+      (infof "Instantiating component: %s" component)
+      (let [typ (ns-resolve (symbol (namespace component)) (symbol (name component)))]
+        (when (nil? typ) (throw (Exception. (format "Cannot find component: %s" component))))
+        (let [ctr (.getConstructor typ (into-array Class [Object]))]
+          (when (nil? ctr)
+            (throw (Exception. (format "Component must have a no-arg constructor: %s" component))))
+          (.newInstance ctr (into-array [config])))))))
 
 (defn get-digraph [components]
   (->> components
@@ -82,7 +104,7 @@
     (let [system
           (reduce (fn [system component]
                     (try
-                      (-> (jig/init (:jig/instance component) system)
+                      (-> (.init (:jig/instance component) system)
                           (validate-system component "init")
                           (update-in [:jig/components] conj component))
                       (catch Exception e
@@ -104,7 +126,7 @@
                   (try
                     (infof "Starting component '%s' :-\n%s"
                            (:jig/id component) (with-out-str (pprint component)))
-                    (-> (jig/start (:jig/instance component) system)
+                    (-> (.start (:jig/instance component) system)
                         (validate-system component "start")
                         (update-in [:jig/components] conj component))
                     (catch Exception e
@@ -126,7 +148,7 @@
                  (try
                    (infof "Stopping component '%s' :-\n%s"
                           (:jig/id component) (with-out-str (pprint component)))
-                   (jig/stop (:jig/instance component) system)
+                   (.stop (:jig/instance component) system)
                    (catch Exception e
                      (errorf e "Failed to stop component (check the logs): %s"
                              component)

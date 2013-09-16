@@ -20,6 +20,7 @@
   :juxtweb/service {:jig/component pro.juxt.website.core/Component
                     :jig/dependencies [:juxtweb/web]
                     :jig.web/app-name :juxtweb/web
+                    :jig/project "../juxtweb/project.clj"
                     :static-path  "../website-static"
                     }
 
