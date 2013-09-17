@@ -113,7 +113,7 @@
                  "examples/docsite/src"
                  ;; >>> Add paths to your projects' source directories here
                  ]
-  :resource-path ["resources"
+  :resource-paths ["resources"
                    "config"
                    ;; >>> Add paths to your projects' resource directories here
                    ]
