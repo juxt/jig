@@ -12,7 +12,7 @@
   {:jig/component jig.web.app/Component
    :jig/dependencies [:server]
    :jig/scheme :http
-   :jig/hostname "localhost"
+   :jig/hostname "web03.juxt.pro"
    :jig.web/server :server
    }
 
@@ -31,7 +31,7 @@
    :jig/dependencies [:opensensors/web :opensensors/mosquitto-bridge :stencil]
    :jig.web/app-name :opensensors/web
    :channel [:opensensors/mosquitto-bridge :channel]
-   :static-path "../adl/mqtt.opensensors.io/public"
+   :static-path "../mqtt.opensensors.io/public"
    }
 
   :opensensors/scheduled-thread-pool

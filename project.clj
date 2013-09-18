@@ -116,12 +116,12 @@
   :source-paths ["src"
                  "examples/docsite/src"
                  ;; >>> Add paths to your projects' source directories here
-                 "../adl/mqtt.opensensors.io/src"
+                 "../mqtt.opensensors.io/src"
                  ]
   :resource-paths ["resources"
                    "config"
                    ;; >>> Add paths to your projects' resource directories here
-                   "../adl/mqtt.opensensors.io/resources"
+                   "../mqtt.opensensors.io/resources"
                    ]
 
   :profiles {:dev {:dependencies [[org.clojure/tools.namespace "0.2.4"]]
