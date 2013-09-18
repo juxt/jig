@@ -105,6 +105,8 @@
                  [jtidy "4aug2000r7-dev"]
                  ;; MQTT
                  [org.fusesource.mqtt-client/mqtt-client "1.5"]
+                 ;; JSON!
+                 [cheshire "5.2.0"]
                  ]
 
   ;; Only for core.async, remove when possible.
