@@ -25,7 +25,7 @@
    :jig/dependencies [:opensensors/web :opensensors/mosquitto-bridge]
    :jig.web/app-name :opensensors/web
    :channel [:opensensors/mosquitto-bridge :channel]
-   :static-path "../adl/my.opensensors.io/public"
+   :static-path "../adl/mqtt.opensensors.io/public"
    }
 
   :opensensors/scheduled-thread-pool
