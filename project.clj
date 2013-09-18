@@ -103,6 +103,8 @@
                  [io.pedestal/pedestal.app-tools "0.1.10"]
                  ;; JTidy
                  [jtidy "4aug2000r7-dev"]
+                 ;; MQTT
+                 [org.fusesource.mqtt-client/mqtt-client "1.5"]
                  ]
 
   ;; Only for core.async, remove when possible.
@@ -112,10 +114,12 @@
   :source-paths ["src"
                  "examples/docsite/src"
                  ;; >>> Add paths to your projects' source directories here
+                 "../adl/my.opensensors.io/src"
                  ]
   :resource-paths ["resources"
                    "config"
                    ;; >>> Add paths to your projects' resource directories here
+                   "../adl/my.opensensors.io/resources"
                    ]
 
   :profiles {:dev {:dependencies [[org.clojure/tools.namespace "0.2.4"]]
