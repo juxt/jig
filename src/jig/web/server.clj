@@ -134,6 +134,6 @@ mechanism."
         system)))
 
   (stop [_ system]
-    (debugf "Stopping server, System is :-\n%s" (with-out-str (pprint system)))
+    (debugf "Stopping server")
     (bootstrap/stop (get-in system [(:jig/id config) :service-map]))
     system))
