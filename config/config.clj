@@ -41,6 +41,7 @@
   :opensensors/dummy-event-generator
   {:jig/component opensensors.core/DummyEventGenerator
    :jig/dependencies [:opensensors/service :opensensors/scheduled-thread-pool]
+   :delay-in-ms 200
    :quotes
    ["The best way to predict the future is to invent it. -Alan Kay"
     "A point of view is worth 80 IQ points. -Alan Kay"
