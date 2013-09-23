@@ -13,3 +13,4 @@ pom.xml.asc
 /logs/
 /config/config.*
 /todo.org
+/.nrepl-port
