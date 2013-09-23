@@ -24,6 +24,7 @@ be included in a production build of the application."
    [clojure.test :as test]
    [loom.io :refer (view)]
    [clojure.tools.namespace.repl :refer (refresh refresh-all)]
+   clojure.tools.namespace.reload ;tmp
    [jig.system :as system]))
 
 (def system
@@ -51,7 +52,7 @@ be included in a production build of the application."
 (defn init
   "Creates and initializes the system in the Var #'system."
   []
-  (alter-var-root #'system (constantly (system/init (config)))))
+  (alter-var-root #'system #(system/init % (config))))
 
 (defn start
   "Starts the system running, updates the Var #'system."

@@ -13,7 +13,7 @@
   (:require
    jig
    [clojure.pprint :refer (pprint)]
-   [io.pedestal.service.interceptor :refer (definterceptorfn before)]
+   [io.pedestal.service.interceptor :refer (definterceptorfn before around)]
    [clojure.tools.logging :refer :all])
   (:import (jig Lifecycle)))
 
@@ -31,13 +31,30 @@
   (start [_ system] system)
   (stop [_ system] system))
 
-;; TODO Replace with defbefore?
 (definterceptorfn
   inject-component-config
   [c]
   (before
    (fn [context]
      (assoc context :component c))))
+
+(definterceptorfn
+  wrap-possible-context-classloader
+  [cl]
+  (around
+   :wrap-possible-context-classloader
+   (fn [context]
+     (if cl
+       (let [ocl (.getContextClassLoader (Thread/currentThread))]
+         (.setContextClassLoader (Thread/currentThread) cl)
+         (assoc context
+           :old-context-loader ocl
+           :context-loader cl))
+       context))
+   (fn [context]
+     (when cl
+       (.setContextClassLoader (Thread/currentThread) (get context :old-context-loader)))
+     (dissoc context :context-loader :old-context-loader))))
 
 (defn add-routes
   "A convenience function to contribute Pedestal routes to an
@@ -48,5 +65,6 @@
              [(:jig.web/app-name config) :jig.web/routes]
              conj [(vec (concat
                          [(or (get-in config [:jig.web/context]) "/")
-                          ^:interceptors [(inject-component-config config)]]
+                          ^:interceptors [(inject-component-config config)
+                                          (wrap-possible-context-classloader (some->> config :jig/project :classloader))]]
                          routes))]))
