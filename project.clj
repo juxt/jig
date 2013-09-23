@@ -87,30 +87,11 @@
 
   ;; Direct access to source project for now, but eventually use lein's aether to find projects.
   :source-paths ["src"
-                 "examples/docsite/src"
-                 ]
+                 "examples/docsite/src"]
+
   :resource-paths ["resources"
-                   "config"
-                   ]
+                   "config"]
 
   :profiles {:dev {:dependencies [[org.clojure/tools.namespace "0.2.4"]]
                    :source-paths ["repl"]}}
-  )
-
-
-(comment
-  [com.datomic/datomic-free "0.8.4007" :exclusions [org.slf4j/slf4j-nop]]
-  ;; Time!
-  [clj-time "0.5.1"]
-  ;; Money!
-  [clojurewerkz/money "1.3.0"]
-  ;; Printing
-  [clj-pdf "1.10.0"]
-  ;; Clojurescript
-  [org.clojure/clojurescript "0.0-1586"]
-  [domina "1.0.1"]
-  ;; Pedestal app
-  [io.pedestal/pedestal.app "0.1.10"]
-  [io.pedestal/pedestal.app-tools "0.1.10"]
-
   )
