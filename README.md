@@ -2,7 +2,7 @@
 
 > “Programming should be interactive, as beautiful as possible, modular, and it should generate assets that are easy to use and learn.” – [Michael O. Church](http://michaelochurch.wordpress.com/2013/08/07/why-clojure-will-win/)
 
-![A jig](main_2right-angle-jig.jpg)
+![A jig](resources/assets/main_2right-angle-jig.jpg)
 
 Jig is an __application harness__ providing a beautifully interactive
 development experience __for Clojure projects__.
@@ -232,7 +232,7 @@ You can also view the component dependency graph from the REPL :-
 
     user> (graph)
 
-![Component dependency between X and Y](component-dependencies.png)
+![Component dependency between X and Y](resources/assets/component-dependencies.png)
 
 ### Built-in components
 
