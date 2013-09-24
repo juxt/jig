@@ -367,10 +367,10 @@ system grows to a certain size.
 
 Where can I find an example of a real project using Jig?
 
-JUXT Accounting is a full application that is developed with Jig. Find more details here: [https://github.com/juxt/juxt-accounting]
+JUXT Accounting is a full application that is developed with Jig. Find more details here: https://github.com/juxt/juxt-accounting
 
 JUXT's [website](https://juxt.pro) also uses Jig, for both development and deployment.
-[https://github.com/juxt/juxtweb]
+https://github.com/juxt/juxtweb
 
 
 What's the relationship between Jig and Up?
