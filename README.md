@@ -290,29 +290,30 @@ different Clojure-powered websites on the same JVM.
 These examples assume a little knowledge about Pedestal, see
 http://pedestal.io/documentation/service-routing/ for more details.
 
+## External projects
+
+Jig is self-hosting, so you can reload the code internal to Jig as per
+Stuart's usual reload procedure.
+
+However, it's more likely that you'll want to use Jig to develop one of
+your own projects. You can do this by specifying a ```:jig/project```
+entry which declares that the component lives in another project.
+
+    :juxtweb/service {:jig/component pro.juxt.website.core/Component
+                      :jig/dependencies [:juxtweb/web]
+                      :jig.web/app-name :juxtweb/web
+                      :jig/project "../juxtweb/project.clj"
+                    }
+
+One advantage with using external projects is that you can change the
+project.clj file(s) of your project(s) without requiring a JVM restart.
+
+A further advantage is that you don't have to modify Jig's
+```project.clj``` file to include dependencies you need in the projects
+it references, you only need to edit the main config file itself (which
+shouldn't be added to git).
+
 ## Caveats
-
-### Classpath and managing dependencies
-
-In the current version of Jig you must ensure that your project's
-dependencies and source directories are added ```:dependencies``` and
-```:source-paths``` (respectively) in Jig's ```project.clj```.
-
-This isn't ideal. My plan is to conjure some project classpath fu in Jig
-that will do this automatically. Leiningen's eval-in-project
-functionality may work perfectly for this, I'm not sure.
-
-Right now you _must_ restart the JVM if you _change_
-dependencies. Fixing the classpath problem may throw up the added bonus
-that a project's dependencies can be reloaded on ```user/reset```
-too. Yay!
-
-There's also the issue that projects that you develop with Jig may want
-to contribute to the System (via a Jig component), yet not want to
-depend on Jig during production. One way of achieving this is to create
-Jig components under a different source route, eg. ```my-project/jig```,
-and adding both the ```src``` and the ```jig``` directories to
-```source-paths``` in Jig's ```project.clj```.
 
 ### The Lifecycle protocol
 
@@ -326,6 +327,24 @@ reasons of component portability) then it will make sense to promote the
 ```Lifecycle``` protocol (and maybe others) to a common library that
 different jigs can use. Until there's an obvious need, I'm not going to
 bother.
+
+### Resource loading in external projects
+
+The ```:jig/project``` mechanism loads external project namespaces in a
+separate classloader. When component lifecycle functions are called,
+this classloader is set as the thread's context classloader, so calls to
+```io/resource``` and others will work as expected. However, any code
+that executes outside of component lifecycle functions may not be able
+to reference resources.
+
+Normally, you shouldn't ever notice any difference between an
+application running standalone and one run within the Jig harness, but
+it's important to note the possibility and report any problems.
+
+Built-in plugins are specially coded to determine the correct
+classloader to set on the thread before calling into your code. For
+example, the web component wraps request threads in middleware which
+sets the project classloader on the thread.
 
 ## FAQ
 
