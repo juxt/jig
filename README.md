@@ -31,7 +31,9 @@ allowing for a clean shutdown of resources.
 #### Why?
 
 There are many good reasons for dividing your System into separate
-components. One is that it allows you flexibility and architectural
+components. One is that it gives you looser coupling between your
+components, which can make it easier to re-use them (among other
+benefits). Another is that it allows you flexibility and architectural
 options at deploy time.
 
 For example, you can deploy all your components in a single JVM for a
@@ -77,8 +79,9 @@ configuration if desired.
 ### Injection of the System into the Pedestal context
 
 Jig does not have opinions as to how you should build your
-applications. However, if does provide good support for writing [Pedestal](http://pedestal.io)
-services. More details can be found below.
+applications. However, if does provide good support for writing
+[Pedestal](http://pedestal.io) services should you wish to keep using
+Jig in your deployment. More details can be found below.
 
 ### Automatic provision of url-for for URI generation
 
@@ -110,9 +113,9 @@ REPL, with full details and stack traces written to the log file..
 ## Releases and Dependency Information
 
 There are no releases of Jig. It is not a library and projects don't
-depend on it. Rather, you clone this repository, point it at an existing
-project and automatically get Stuart's workflow (plus some optional
-extras that I've explained and hope make it worth the effort).
+depend on it. Rather, you clone this repository, configure it to point
+at an existing (external) project and automatically get Stuart's
+workflow (plus some optional extras, should you want them).
 
 ## Usage
 
