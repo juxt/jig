@@ -58,17 +58,17 @@
             (when ~cl
               (. clojure.lang.Var (popThreadBindings))))))))
 
-(defn instantiate [{component :jig/component project :jig/project :as config}]
+(defn instantiate [{id :jig/id component :jig/component project :jig/project :as config}]
   (when (nil? component)
     (throw (ex-info (format "Component is nil in config: %s" config) config)))
-  (infof "Resolving namespace: %s" (symbol (namespace component)))
+  (debugf "Resolving namespace: %s" (symbol (namespace component)))
 
   (when (nil? (symbol (namespace component)))
     (throw (ex-info (format "Namespace not found: %s" (symbol (namespace component)))
                     {})))
   (with-classloader (:classloader project)
     (require (symbol (namespace component)))
-    (infof "Instantiating component: %s" component)
+    (debugf "Instantiating component: %s" id)
     (let [typ (ns-resolve (symbol (namespace component)) (symbol (name component)))]
       (when (nil? typ) (throw (Exception. (format "Cannot find component: %s" component))))
       (let [ctr (.getConstructor typ (into-array Class [Object]))]
@@ -168,8 +168,7 @@ helpful in avoiding repeated expensive analysis of project files"
              (mapcat (partial apply map vector))
              (into {}))]
 
-    (infof "Projects are: %s" projects)
-    (infof "Initializing system with config :-\n%s" (with-out-str (pprint config)))
+    (debugf "Projects are: %s" projects)
 
     (let [component-instances (for [id (get-dependency-order components)]
                                 (if-let [c (get components id)]
@@ -184,25 +183,28 @@ helpful in avoiding repeated expensive analysis of project files"
                                     {:id id}))))]
 
       (infof "Components order is %s" (apply str (interpose ", " (map :jig/id component-instances))))
-      (infof "Components to init are :-\n%s" (with-out-str (pprint component-instances)))
 
       ;; Projects must have a structure, like 'last seen time', etc..
 
       (let [seed {:jig/components []
                   :jig/config config
                   :jig/projects projects}
-
             system
             (reduce (fn [system component]
-                      (with-context-classloader (:jig/classloader component)
+                      (infof "system component init %s" (:jig/id component))
+                      (infof "here: classloader %s" (some->> component :jig/project :classloader))
+                      (with-context-classloader (some->> component :jig/project :classloader)
+                        ;; Why is this not working as expected? try loading a resource NOW
+                        (infof "component class loader is %s" (some->> component :jig/project :classloader))
+                        (infof "pre class loader is %s" (.getContextClassLoader (Thread/currentThread)))
                         (try
                           (-> (.init (:jig/instance component) system)
                               (validate-system component "init")
                               (update-in [:jig/components] conj component))
                           (catch Exception e
-                            (errorf e "Failed to initialize component: %s" component)
+                            (errorf e "Failed to initialize component: %s" (:jig/id component))
                             ;; Tell the repl
-                            (println "Component failed to initialize (check the logs):" component)
+                            (println "Component failed to initialize (check the logs):" (:jig/id component))
                             (update-in system [:jig/components-failed-init] conj component)
                             ))))
                     seed component-instances)]
@@ -214,22 +216,23 @@ helpful in avoiding repeated expensive analysis of project files"
 (defn start
   "Start the system components"
   [{components :jig/components :as system}]
+  (infof "system start")
   (let [system
-        (reduce (fn [system component]
-                  (with-context-classloader (:jig/classloader component)
-                    (try
-                      (infof "Starting component '%s' :-\n%s"
-                             (:jig/id component) (with-out-str (pprint component)))
-                      (-> (.start (:jig/instance component) system)
-                          (validate-system component "start")
-                          (update-in [:jig/components] conj component))
-                      (catch Exception e
-                        (errorf e "Failed to start component: %s" component)
-                        ;; Tell the repl
-                        (println "Component failed to start (check the logs):" component)
-                        (update-in system [:jig/components-failed-start] conj component)
-                        ))))
-                (assoc system :jig/components []) components)]
+        (reduce
+         (fn [system component]
+           (with-context-classloader (some->> component :jig/project :classloader)
+             (try
+               (infof "Starting component '%s'" (:jig/id component))
+               (-> (.start (:jig/instance component) system)
+                   (validate-system component "start")
+                   (update-in [:jig/components] conj component))
+               (catch Exception e
+                 (errorf e "Failed to start component: %s" (:jig/id component))
+                 ;; Tell the repl
+                 (println "Component failed to start (check the logs):" (:jig/id component))
+                 (update-in system [:jig/components-failed-start] conj component)
+                 ))))
+         (assoc system :jig/components []) components)]
     (debugf "After system start, system keys are %s" (apply str (interpose ", " (keys system))))
     system))
 
@@ -237,20 +240,20 @@ helpful in avoiding repeated expensive analysis of project files"
   (info "Stop the system components")
   (->> components
        reverse ;; Components are stopped in reverse order
-       (reduce (fn [system component]
-                 (with-context-classloader (:jig/classloader component)
-                   (try
-                     (infof "Stopping component '%s' :-\n%s"
-                            (:jig/id component) (with-out-str (pprint component)))
-                     (.stop (:jig/instance component) system)
-                     (catch Exception e
-                       (errorf e "Failed to stop component (check the logs): %s"
-                               component)
-                       ;; Tell the repl
-                       (println "Component failed to stop:" component)
-                       ;; Return system, the :jig/components-failed-stop may be
-                       ;; used by other components (unlikely)
-                       (update-in system [:jig/components-failed-stop] conj component))
-                     )))
-               ;; Seed the reduce with the system
-               system)))
+       (reduce
+        (fn [system component]
+          (with-context-classloader (some->> component :jig/project :classloader)
+            (try
+              (debugf "Stopping component '%s'" (:jig/id component))
+              (.stop (:jig/instance component) system)
+              (catch Exception e
+                (errorf e "Failed to stop component (check the logs): %s"
+                        (:jig/id component))
+                ;; Tell the repl
+                (println "Component failed to stop (check the logs):" (:jig/id component))
+                ;; Return system, the :jig/components-failed-stop may be
+                ;; used by other components (unlikely)
+                (update-in system [:jig/components-failed-stop] conj component))
+              )))
+        ;; Seed the reduce with the system
+        system)))

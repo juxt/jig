@@ -46,7 +46,7 @@ http://pedestal.io/documentation/service-routing/"
   (debugf "Extracting terse routes from '%s'" app-name)
   (let [terse-routes
         [(vec (apply concat (get-in system [app-name :jig.web/routes])))]]
-    (debugf "Terse routes are :-\n%s" (with-out-str (pprint terse-routes)))
+    ;;(debugf "Terse routes are :-\n%s" (with-out-str (pprint terse-routes)))
     terse-routes))
 
 (defn push-interceptor
@@ -96,8 +96,6 @@ mechanism."
                    ;; constructed, so instead we reference the atom that
                    ;; will contain the System.
                    (push-interceptor (inject-system server-id system-atom app-name)))))))]
-    (debugf "Result of making routes for server %s below :-\n%s"
-            server-id (with-out-str (pprint result)))
     result))
 
 ;; A Jig component that creates a web server
@@ -113,7 +111,7 @@ mechanism."
                       ::bootstrap/join? false})))
 
   (start [_ system]
-    (infof "Starting web server %s" (:jig/id config))
+    (debugf "Starting web server %s" (:jig/id config))
     (debugf "System keys are %s" (apply str (interpose ", " (keys system))))
     (let [ ;; an atom is used to break the dependency cycle: routes ->
           ;; interceptors -> url-for -> routes
@@ -122,10 +120,10 @@ mechanism."
           url-for (route/url-for-routes routes)
           server-map (merge (get-in system [(:jig/id config) :server-map])
                             {::bootstrap/routes routes})
-          _ (debugf "Server map is :-\n%s" (with-out-str (pprint server-map)))
+          ;;_ (debugf "Server map is :-\n%s" (with-out-str (pprint server-map)))
           service-map (bootstrap/create-server server-map)]
 
-      (debugf "Starting server, service-map is :-\n%s" (with-out-str (pprint service-map)))
+      ;;(debugf "Starting server, service-map is :-\n%s" (with-out-str (pprint service-map)))
       (bootstrap/start service-map)
       (let [system (-> system
                        (assoc-in [(:jig/id config) :service-map] service-map)
