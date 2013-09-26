@@ -97,6 +97,7 @@
   "Create a project map containing interesting details about a project,
 helpful in avoiding repeated expensive analysis of project files"
   [f components]
+  (debugf "Creating project struct for %s" f)
   (let [p (->> f str project/read)
         cp (->> p classpath/get-classpath (map io/as-file))]
     {:name (:name p)
@@ -125,7 +126,11 @@ helpful in avoiding repeated expensive analysis of project files"
   "If the project.clj file of a project has been modified, reload the project info"
   [project]
   (if (> (.lastModified (:project-file project)) (:last-modified project))
-    (project-struct (:project-file project) (:components project))
+    (do
+      (debugf "Project file (%s) changed, refreshing project %s"
+             (:project-file project)
+             (:name project))
+      (project-struct (:project-file project) (:components project)))
     project))
 
 (defn reload-project
@@ -141,6 +146,7 @@ helpful in avoiding repeated expensive analysis of project files"
   [system {:keys [components] :as config}]
 
   (let [modified-config (not= config (:jig/config system))
+        _ (debugf "Modified config? %b" modified-config)
         projects
         (or
          ;; When the config is the same, restore the projects from the system
@@ -182,7 +188,7 @@ helpful in avoiding repeated expensive analysis of project files"
                                     (format "Component '%s' referenced as a dependency but is not contained in the map" id)
                                     {:id id}))))]
 
-      (infof "Components order is %s" (apply str (interpose ", " (map :jig/id component-instances))))
+      (debugf "Components order is %s" (apply str (interpose ", " (map :jig/id component-instances))))
 
       ;; Projects must have a structure, like 'last seen time', etc..
 
@@ -191,12 +197,7 @@ helpful in avoiding repeated expensive analysis of project files"
                   :jig/projects projects}
             system
             (reduce (fn [system component]
-                      (infof "system component init %s" (:jig/id component))
-                      (infof "here: classloader %s" (some->> component :jig/project :classloader))
                       (with-context-classloader (some->> component :jig/project :classloader)
-                        ;; Why is this not working as expected? try loading a resource NOW
-                        (infof "component class loader is %s" (some->> component :jig/project :classloader))
-                        (infof "pre class loader is %s" (.getContextClassLoader (Thread/currentThread)))
                         (try
                           (-> (.init (:jig/instance component) system)
                               (validate-system component "init")
@@ -214,9 +215,9 @@ helpful in avoiding repeated expensive analysis of project files"
         system))))
 
 (defn start
-  "Start the system components"
+  "Start the system"
   [{components :jig/components :as system}]
-  (infof "system start")
+  (infof "Starting the system")
   (let [system
         (reduce
          (fn [system component]
@@ -236,15 +237,17 @@ helpful in avoiding repeated expensive analysis of project files"
     (debugf "After system start, system keys are %s" (apply str (interpose ", " (keys system))))
     system))
 
-(defn stop [{components :jig/components :as system}]
-  (info "Stop the system components")
+(defn stop
+  "Stop the system"
+  [{components :jig/components :as system}]
+  (infof "Stopping the system")
   (->> components
        reverse ;; Components are stopped in reverse order
        (reduce
         (fn [system component]
           (with-context-classloader (some->> component :jig/project :classloader)
             (try
-              (debugf "Stopping component '%s'" (:jig/id component))
+              (infof "Stopping component '%s'" (:jig/id component))
               (.stop (:jig/instance component) system)
               (catch Exception e
                 (errorf e "Failed to stop component (check the logs): %s"

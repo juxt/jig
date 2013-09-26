@@ -9,9 +9,17 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns user
-  "Tools for interactive development with the REPL. This file might not
+;; This is Jig's user namespace, the entry point.
+
+;; We need to ensure that this namespace is loaded first, because we'll
+;; use some of its keywords in our ns declaration.
+(require 'clojure.tools.namespace.repl)
+
+(ns ^{:doc "Tools for interactive development with the REPL. This file might not
 be included in a production build of the application."
+      ;; We must be careful not to reload it.
+      :clojure.tools.namespace.repl/load false
+      :clojure.tools.namespace.repl/unload false} user
   (:require
    [clojure.java.io :as io]
    [clojure.java.javadoc :refer (javadoc)]
@@ -24,7 +32,6 @@ be included in a production build of the application."
    [clojure.test :as test]
    [loom.io :refer (view)]
    [clojure.tools.namespace.repl :refer (refresh refresh-all)]
-   clojure.tools.namespace.reload ;tmp
    [jig.system :as system]))
 
 (def system
