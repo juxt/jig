@@ -80,6 +80,10 @@
                  [io.pedestal/pedestal.jetty "0.1.10"]
                  ;; CSS for examples
                  [garden "0.1.0-beta6"]
+                 ;; Stencil for templating
+                 [stencil "0.3.2"]
+                 ;; Markdown
+                 [endophile "0.1.0"]
                  ]
 
   ;; Only for core.async, remove when possible.
