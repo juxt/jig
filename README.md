@@ -9,10 +9,57 @@ development experience __for Clojure projects__.
 
 ## Features and benefits
 
-Jig 'embraces and extends' Stuart Sierra's excellent
+Feedback is at the heart of all agile software development processes. If
+you can reduce the time between making a change and seeing the result,
+you can proceed faster, with more confidence and accuracy.
+
+For the vast majority of developers, the impact of changing a line of
+code cannot be determined until the whole system has been rebuilt and
+retested from scratch, which can take ages. While there are many
+advantages to frequent thoroug testing, as a developer the feedback loop
+sometimes feels painfully long, so long that we lose our concentration and focus.
+
+![Losing focus - attribution: http://xkcd.com/303/](http://imgs.xkcd.com/comics/compiling.png)
+
+Unless you have experienced a development environment that offers _near
+instant feedback upon change_ it is difficult to describe the impact it
+can have on your ability to solve difficult problems, produce
+reliable code quickly and have fun.
+
+Clojure, in the tradition of dynamic languages, comes very close to
+providing this kind of experience right out-of-the-box. In LISP,
+functions are bound to vars, which can be rebound, and when functions
+are applied, the latest binding of the function is used.
+
+In practice, however, there are some minor fiddly issues that add up to
+impair the dependability of the code reloading : adding a new library
+dependency, redeclaring a ```defmulti``` or Clojure protocol, stale
+state referenced in ```def```s and ```defonce```s are a few
+examples. Jig's purpose is to handle all these incidentals for you,
+letting you concentrate more fully on your programming.
+
+Jig builds upon Stuart Sierra's excellent
 [reloaded workflow](http://thinkrelevance.com/blog/2013/06/04/clojure-workflow-reloaded)
-pattern. Therefore it's important that you're familiar with this pattern
-because Jig builds on it.
+pattern. Therefore it's important that you're familiar with the general
+idea of this pattern: the developer invokes a 'reset' function at
+various intervals which causes a minimalist reloading of just the code
+that has changed since the last reset, and anything else that needs
+reloading as a result (Due to the intricacies of Clojure and the JVM,
+this is a non-trivial problem that Stuart has solved). Typically, the
+reset function is bound to a hotkey, Emacs keybinding (I use "C-c r") or
+[something more exotic](http://www.stealthswitch2.com/products/stealthswitch-ii/). The
+price of entry is that a developer has to ensure all application state
+is held in a single map or record, called the _system_, otherwise the
+pattern doesn't work. In practice, this is a good architectural policy
+to establish anyway.
+
+Jig extends Stuart's work by providing some optional extra features that
+can help in the development of large Clojure systems:
+
+* modularity through componentisation
+* configuration
+* scaling the pattern up to multiple projects
+* a growing set of common re-usable infrastructure components.
 
 ### Modularity
 
@@ -331,7 +378,17 @@ reasons of component portability) then it will make sense to promote the
 different jigs can use. Until there's an obvious need, I'm not going to
 bother.
 
-### Resource loading in external projects
+### Caveats with external projects
+
+Jig's support for external projects is very useful. However, there are
+some caveats to be aware of due to the nature of having multiple
+classloaders. Java classloading is a complex area which can cause
+problems with code that isn't intended to be loaded in a different
+classloader to Clojure itself. However, Java classloading is very mature
+and very large systems have been built (e.g. Eclipse) which fully
+exploit the possibilities it enables.
+
+#### Resource loading
 
 The ```:jig/project``` mechanism loads external project namespaces in a
 separate classloader. When component lifecycle functions are called,
@@ -349,9 +406,41 @@ classloader to set on the thread before calling into your code. For
 example, the web component wraps request threads in middleware which
 sets the project classloader on the thread.
 
+#### EDN data readers
+
+If an external project depends on a third-party jar which isn't on Jig's
+own classpath, then it will not have been visible to Clojure when
+clojure.core is first loaded. This means that any data readers declared
+in ```/data_readers.clj``` wlil not work. If you use the
+```edn/read-string``` in these projects you cannot assume the
+```*data-readers*``` dynamic var will contain the data readers declared
+in the third-party jar. The workaround is to use the 2-arg form of
+edn/read edn/read-string and supply the readers explicitly in the option
+map.
+
+For example, when loading Datomic data from a file, you would use the
+following form :-
+
+    (edn/read-string
+       {:readers {'db/id datomic.db/id-literal
+                  'db/fn datomic.function/construct
+                  'base64 datomic.codec/base-64-literal}}
+       "my-data.edn)
+
+#### user.clj
+
+If an external project has a ```/user.clj``` file in one of its source
+directories, then it will be loaded on a reset and override Jig's user
+namespace. Jig will then stop working. The current workaround is to
+ensure such a file isn't visible to Jig, either by renaming it or by
+removing the source directory containing it in the project's
+```project.clj``` file. It is hoped that future versions of Jig will
+avoid this issue by disabling the loading of such files by
+```tools.namespace```.
+
 ## FAQ
 
-But Clojure already does code reloading! Why do I need all this stuff?
+> Clojure already does code reloading! Why do I need all this stuff?
 
 Clojure, being a LISP, allows you to reload functions at will. But
 Stuart's pattern (which Jig builds on) extends this to state,
@@ -367,16 +456,14 @@ Jig is trying to provide you with a better development experience, while
 nudging you towards a modular architecture that will help you when your
 system grows to a certain size.
 
-
-Where can I find an example of a real project using Jig?
+> Where can I find an example of a real project using Jig?
 
 JUXT Accounting is a full application that is developed with Jig. Find more details here: https://github.com/juxt/juxt-accounting
 
 JUXT's [website](https://juxt.pro) also uses Jig, for both development and deployment.
 https://github.com/juxt/juxtweb
 
-
-What's the relationship between Jig and Up?
+> What's the relationship between Jig and Up?
 
 [Up](https://github.com/malcolmsparks/up) is deprecated, Jig replaces it
 (and has stolen all the worthy bits).
@@ -390,7 +477,7 @@ Up's functionality. Jig is better.
 
 ## Troubleshooting
 
-### java.lang.IllegalArgumentException: No implementation of method: :init of protocol: #'jig/Lifecycle found for class
+>  java.lang.IllegalArgumentException: No implementation of method: :init of protocol: #'jig/Lifecycle found for class
 
 Ensure you ```require``` jig before ```import```ing the ```jig/Lifecycle``` protocol.
 
