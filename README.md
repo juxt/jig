@@ -159,10 +159,12 @@ REPL, with full details and stack traces written to the log file..
 
 ## Releases and Dependency Information
 
-There are no releases of Jig. It is not a library and projects don't
-depend on it. Rather, you clone this repository, configure it to point
-at an existing (external) project and automatically get Stuart's
-workflow (plus some optional extras, should you want them).
+Jig is is not a library and projects don't depend on it. Rather, you
+clone this repository, configure it to point at an existing (external)
+project and automatically get Stuart's workflow (plus some optional
+extras, should you want them).
+
+Stable versions of Jig will be tagged in git, so look for those.
 
 ## Usage
 
