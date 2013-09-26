@@ -4,8 +4,9 @@
    jig
    [jig.web
     [app :refer (add-routes)]]
-   [io.pedestal.service.interceptor :refer (defbefore)]
+   [io.pedestal.service.interceptor :as interceptor :refer (defbefore definterceptorfn)]
    [ring.util.response :as ring-resp]
+   [ring.util.codec :as codec]
    [io.pedestal.service.http.body-params :as body-params]
    [io.pedestal.service.http :as bootstrap]
    [stencil.core :as stencil]
@@ -44,6 +45,16 @@
   (assoc context :response
          (ring-resp/redirect (url-for ::index-page))))
 
+(definterceptorfn static
+  [root-path & [opts]]
+  (interceptor/handler
+   ::static
+   (fn [req]
+     (infof "Request for static is %s" req)
+     (ring-resp/file-response
+      (codec/url-decode (get-in req [:path-params :static]))
+      {:root root-path, :index-files? true, :allow-symlinks? false}))))
+
 (deftype ReadmeComponent [config]
   Lifecycle
   (init [_ system]
@@ -52,6 +63,7 @@
                  ^:interceptors [(body-params/body-params)
                                  bootstrap/html-body]
                  ["/index.html" {:get index-page}]
+                 ["/resources/assets/*static" {:get (static "resources/assets")}]
                  ["/jig.css" {:get css-page}]]))
 
   (start [_ system]
