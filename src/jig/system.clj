@@ -122,15 +122,23 @@ helpful in avoiding repeated expensive analysis of project files"
   (with-classloader ldr
     (reload/track-reload tracker)))
 
-(defn refresh-project
+(defn refresh-project [project]
+  (if (not (:pinned project))
+    (project-struct (:project-file project) (:components project))
+    (do
+      (warnf "Project (%s) should be refreshed but is configured as pinned, so will not refresh it."
+             (:project-file project))
+      project)))
+
+(defn ensure-fresh-project
   "If the project.clj file of a project has been modified, reload the project info"
   [project]
   (if (> (.lastModified (:project-file project)) (:last-modified project))
     (do
-      (debugf "Project file (%s) changed, refreshing project %s"
+      (debugf "Project (%s) changed, refreshing project %s"
              (:project-file project)
              (:name project))
-      (project-struct (:project-file project) (:components project)))
+      (refresh-project project))
     project))
 
 (defn reload-project
@@ -143,30 +151,24 @@ helpful in avoiding repeated expensive analysis of project files"
 
 (defn init
   "Reset the projects, (re-)initialize the system components"
-  [system {:keys [components] :as config}]
+  [{projects :jig/projects :as system} {:keys [components] :as config}]
 
-  (let [modified-config (not= config (:jig/config system))
-        _ (debugf "Modified config? %b" modified-config)
-        projects
-        (or
-         ;; When the config is the same, restore the projects from the system
-         (when (not modified-config)
-           (:jig/projects system))
-
-         ;; Otherwise load the projects
+  (let [projects
+        (cond
+         (nil? projects)
          (->> components
               (filter (comp :jig/project second))
               (group-by (comp (memfn getCanonicalFile) io/file :jig/project second))
               ;; Rearrange
               (map (fn [[k v]] [(map first v) k]))
               (map (fn [[k v]] (project-struct v k)))
-              ))
+              )
 
-        ;; Refresh projects that have modified project.clj files
-        projects (map refresh-project projects)
+         (not= config (:jig/config system))
+         (doall (map (comp reload-project refresh-project) projects))
 
-        ;; Reload vars in projects
-        projects (map reload-project projects)
+         :otherwise
+         (doall (map (comp reload-project ensure-fresh-project) projects)))
 
         compid->project
         (->> projects
