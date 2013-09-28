@@ -97,6 +97,10 @@ dedicated JVM (200Mb is not an insignificant overhead when you have
 dozens of Clojure-based web applications). Jig lets me quickly hook up
 new web applications and services onto an existing Clojure deployment.
 
+Here's an example of one of my component graphs.
+
+![Example component dependency graph](resources/assets/example-graph.png)
+
 ### Separation of dev-workflow from application code
 
 Rather than using a lein template to generate the project and the
