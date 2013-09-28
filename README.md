@@ -19,7 +19,7 @@ retested from scratch, which can take ages. While there are many
 advantages to frequent thoroug testing, as a developer the feedback loop
 sometimes feels painfully long, so long that we lose our concentration and focus.
 
-![Losing focus - attribution: http://xkcd.com/303/](http://imgs.xkcd.com/comics/compiling.png)
+![Losing focus - attribution: http://xkcd.com/303/](resources/assets/compiling.png)
 
 Unless you have experienced a development environment that offers _near
 instant feedback upon change_ it is difficult to describe the impact it
