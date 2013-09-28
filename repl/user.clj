@@ -89,5 +89,5 @@ be included in a production build of the application."
 
 (defn graph "View the dependency graph"
   []
-  (let [{:keys [components]} (if system (:jig/config system) (config))]
+  (let [{components :jig/components} (if system (:jig/config system) (config))]
     (view (system/get-digraph components))))

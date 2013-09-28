@@ -58,6 +58,11 @@
             (when ~cl
               (. clojure.lang.Var (popThreadBindings))))))))
 
+(defmacro with-classloaders [cl & body]
+  `(with-classloader ~cl
+    (with-context-classloader ~cl
+      ~@body)))
+
 (defn instantiate [{id :jig/id component :jig/component project :jig/project :as config}]
   (when (nil? component)
     (throw (ex-info (format "Component is nil in config: %s" config) config)))
@@ -96,8 +101,8 @@
 (defn project-struct
   "Create a project map containing interesting details about a project,
 helpful in avoiding repeated expensive analysis of project files"
-  [f components]
-  (debugf "Creating project struct for %s" f)
+  [f components {pinned? :jig/pinned? :as conf}]
+  (infof "Creating project struct for %s with config %s" f conf)
   (let [p (->> f str project/read)
         cp (->> p classpath/get-classpath (map io/as-file))]
     {:name (:name p)
@@ -106,6 +111,7 @@ helpful in avoiding repeated expensive analysis of project files"
      :last-modified (.lastModified f)
      :project p
      :classpath cp
+     :pinned? pinned?
      :classloader (->> cp
                        (map io/as-url)
                        into-array (java.net.URLClassLoader.))
@@ -123,8 +129,8 @@ helpful in avoiding repeated expensive analysis of project files"
     (reload/track-reload tracker)))
 
 (defn refresh-project [project]
-  (if (not (:pinned project))
-    (project-struct (:project-file project) (:components project))
+  (if (not (:pinned? project))
+    (project-struct (:project-file project) (:components project) false)
     (do
       (warnf "Project (%s) should be refreshed but is configured as pinned, so will not refresh it."
              (:project-file project))
@@ -151,18 +157,22 @@ helpful in avoiding repeated expensive analysis of project files"
 
 (defn init
   "Reset the projects, (re-)initialize the system components"
-  [{projects :jig/projects :as system} {:keys [components] :as config}]
+  [{projects :jig/projects :as system}
+   {project-confs :jig/projects components :jig/components :as config}]
 
-  (let [projects
+  (let [extract-prj (comp :jig/project second)
+        extract-cfile (comp (memfn getCanonicalFile)
+                            io/file extract-prj)
+        projects
         (cond
          (nil? projects)
          (->> components
-              (filter (comp :jig/project second))
-              (group-by (comp (memfn getCanonicalFile) io/file :jig/project second))
-              ;; Rearrange
-              (map (fn [[k v]] [(map first v) k]))
-              (map (fn [[k v]] (project-struct v k)))
-              )
+              (filter extract-prj)
+              (group-by extract-cfile)
+              (map (fn [[file entries]]
+                     (project-struct file (map first entries)
+                                     (first (filter #(= file (some->> % :jig/project io/file (.getCanonicalFile)))
+                         project-confs))))))
 
          (not= config (:jig/config system))
          (doall (map (comp reload-project refresh-project) projects))
@@ -199,7 +209,7 @@ helpful in avoiding repeated expensive analysis of project files"
                   :jig/projects projects}
             system
             (reduce (fn [system component]
-                      (with-context-classloader (some->> component :jig/project :classloader)
+                      (with-classloaders (some->> component :jig/project :classloader)
                         (try
                           (-> (.init (:jig/instance component) system)
                               (validate-system component "init")
@@ -223,7 +233,7 @@ helpful in avoiding repeated expensive analysis of project files"
   (let [system
         (reduce
          (fn [system component]
-           (with-context-classloader (some->> component :jig/project :classloader)
+           (with-classloaders (some->> component :jig/project :classloader)
              (try
                (infof "Starting component '%s'" (:jig/id component))
                (-> (.start (:jig/instance component) system)
@@ -247,7 +257,7 @@ helpful in avoiding repeated expensive analysis of project files"
        reverse ;; Components are stopped in reverse order
        (reduce
         (fn [system component]
-          (with-context-classloader (some->> component :jig/project :classloader)
+          (with-classloaders (some->> component :jig/project :classloader)
             (try
               (infof "Stopping component '%s'" (:jig/id component))
               (.stop (:jig/instance component) system)

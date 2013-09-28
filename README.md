@@ -433,6 +433,41 @@ following form :-
                   'base64 datomic.codec/base-64-literal}}
        "my-data.edn)
 
+#### Classloader leaks
+
+Some components will not be able to shutdown cleanly and the classloader
+may persist. Examples are components that spawn threads, create agents,
+bind thread-local vars, and so on.
+
+Datomic is a specific example due to the way it caches
+connections. Disable the project reloading by adding a
+```:jig/projects``` section in the config and setting the
+```:jig/classloader-pinned?``` to ```true```. This will pin the
+project's classloader to the project so that the project will not get a
+new classloader upon restart (projects are usually restarted if their
+```project.clj``` file changes, or if the Jig configuration changes).
+
+    {
+    :jig/projects
+    [{
+      :jig/project "../juxtweb/project.clj"
+      :jig/classloader-pinned? false
+      }
+     {
+      :jig/project "../accounting/project.clj"
+      :jig/classloader-pinned? true
+      ;; eg. extra classpath, source dirs, etc. here
+      }
+     ]
+     }
+
+It is expected that Clojure 1.6 will fix this issue ([CLJ-1125](http://dev.clojure.org/jira/browse/CLJ-1125)). Until then, if you have problems with components such as class linkage errors, protocol dispatch failures, ```.isInstance``` checks, then it recommended you disable Jig's project reloading capability. You will still be able to reload the code in external projects as before, but will lose the ability to make changes to a project, such as the project's library dependencies, without having to restart the JVM.
+
+More information can be found in these resources:
+
+* http://immutant.org/news/2012/05/18/runtime-isolation/
+* http://wiki.apache.org/tomcat/MemoryLeakProtection
+
 #### user.clj
 
 If an external project has a ```/user.clj``` file in one of its source
