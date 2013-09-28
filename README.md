@@ -24,7 +24,7 @@ sometimes feels painfully long, so long that we lose our concentration and focus
 Unless you have experienced a development environment that offers _near
 instant feedback upon change_ it is difficult to describe the impact it
 can have on your ability to solve difficult problems, produce
-reliable code quickly and have fun.
+reliable code quickly and make programming more enjoyable.
 
 Clojure, in the tradition of dynamic languages, comes very close to
 providing this kind of experience right out-of-the-box. In LISP,
