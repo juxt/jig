@@ -8,6 +8,20 @@
            :io.pedestal.service.http/type :jetty
            }
 
+  #_:nrepl-server #_{:jig/component jig.nrepl/Server
+                 ;; The port can be set, or it will auto-configure if
+                 ;; not specified.
+                 :port 9090
+                 }
+
+  #_:jmx #_{:jig/component jig.jmx/JmxMBean
+            :dependencies [:nrepl-server]}
+
+  #_:git #_{:jig/component jig.git/GitPull}
+
+  #_:nginx-purge #_{:jig/component jig.nginx/Purge
+                    :domain "juxt.pro"}
+
   ;; ----------------------------------------------------------------
   ;; juxt.pro
 
@@ -28,20 +42,36 @@
   ;; ----------------------------------------------------------------
   ;; Congreve accounts
 
-  :congreve/accounts/db
-  {:jig/component pro.juxt.accounting.jig/Database
+  #_:congreve/accounts/db
+  #_{:jig/component pro.juxt.accounting.jig/Database
    :jig/project "../accounting/project.clj"
-   :db {:uri "datomic:mem://pro.juxt/accounts"}
+   :db {:uri "datomic:mem://congreve/accounts"}
    :accounts-file "/home/malcolm/Dropbox.private/Congreve/accounts.edn"
    }
 
-  :congreve/accounts/service
-  {:jig/component pro.juxt.accounting.jig/PedestalService
+  #_:congreve/accounts/service
+  #_{:jig/component pro.juxt.accounting.jig/PedestalService
    :jig/dependencies [:juxtweb/web :congreve/accounts/db]
    :jig/project "../accounting/project.clj"
    :pro.juxt.accounting/data :congreve/accounts/db
    :jig.web/app-name :juxtweb/web
    :jig.web/context "/congreve"
+   }
+
+  :juxt/accounts/db
+  {:jig/component pro.juxt.accounting.jig/Database
+   :jig/project "../accounting/project.clj"
+   :db {:uri "datomic:mem://juxt/accounts"}
+   :accounts-file "/home/malcolm/Dropbox.private/JUXT/accounts.edn"
+   }
+
+  :juxt/accounts/service
+  {:jig/component pro.juxt.accounting.jig/PedestalService
+   :jig/dependencies [:juxtweb/web :juxt/accounts/db]
+   :jig/project "../accounting/project.clj"
+   :pro.juxt.accounting/data :juxt/accounts/db
+   :jig.web/app-name :juxtweb/web
+   :jig.web/context "/accounts"
    }
 
   ;; ----------------------------------------------------------------
@@ -65,8 +95,8 @@
                      }
 
   ;; Reloading
-  :firefox-reloader {:jig/component jig.web.firefox-reload/Component
-                     :jig/dependencies [:examples/docsite :congreve/accounts/service :juxtweb/service]
+  #_:firefox-reloader #_{:jig/component jig.web.firefox-reload/Component
+                     :jig/dependencies [:examples/docsite :juxtweb/service] ; :congreve/accounts/service
                      :jig.web.firefox-reload/host "localhost"
                      :jig.web.firefox-reload/port 32000
                      }
