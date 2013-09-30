@@ -23,6 +23,7 @@ be included in a production build of the application."
   (:require
    [clojure.java.io :as io]
    [clojure.java.javadoc :refer (javadoc)]
+   [clojure.java.jmx :as jmx]
    [clojure.pprint :refer (pprint)]
    [clojure.reflect :refer (reflect)]
    [clojure.repl :refer (apropos dir doc find-doc pst source)]
@@ -32,7 +33,9 @@ be included in a production build of the application."
    [clojure.test :as test]
    [loom.io :refer (view)]
    [clojure.tools.namespace.repl :refer (refresh refresh-all)]
-   [jig.system :as system]))
+   [jig.system :as system]
+   jig.jmx)
+  (:import (jig.jmx CustomMBean)))
 
 (def system
   "A Var containing an object representing the application under
@@ -55,6 +58,8 @@ be included in a production build of the application."
                        read-resource) [["config.edn"
                                          "config.clj"
                                          "sample.config.edn"]])))
+
+(declare reset)
 
 (defn init
   "Creates and initializes the system in the Var #'system."

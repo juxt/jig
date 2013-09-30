@@ -13,6 +13,7 @@
   (:require
    [clojure
     [edn :as edn]]
+   [clojure.core.async :refer :all]
    [clojure.java
     [io :as io]]
    [clojure.tools
@@ -224,6 +225,7 @@ helpful in avoiding repeated expensive analysis of project files"
         (debugf
          "After system initialization, system keys are %s"
          (apply str (interpose ", " (keys system))))
+
         system))))
 
 (defn start

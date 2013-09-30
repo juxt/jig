@@ -2,6 +2,8 @@
   (:require
    [clojure.tools.logging :refer :all]
    jig
+   [jig
+    [reset :as reset]]
    [jig.web
     [app :refer (add-routes)]]
    [io.pedestal.service.interceptor :as interceptor :refer (defbefore definterceptorfn)]
@@ -13,6 +15,7 @@
    [garden.core :refer (css)]
    [garden.units :refer (px pt em percent)]
    [garden.color :refer (hsl rgb)]
+   [hiccup.core :refer (html)]
    [examples.docsite
     [markdown :refer (markdown)]]
    )
@@ -40,6 +43,17 @@
 (defbefore index-page [context]
   (page-response context (markdown (slurp "README.md"))))
 
+(defbefore admin-page [{:keys [url-for system] :as context}]
+  (page-response context
+                 (html
+                  [:h1 "Jig system administration"]
+                  [:form {:method "POST" :action (url-for ::post-reset)} [:input {:type "submit" :value "Reload"}]])))
+
+(defbefore post-reset [{:keys [url-for system] :as context}]
+  (reset/reset-via-nrepl system 40) ;; 40ms should be plenty to return a response
+  (assoc context :response
+         (ring-resp/redirect (url-for ::admin-page))))
+
 (defbefore root-page
   [{:keys [request system url-for] :as context}]
   (assoc context :response
@@ -63,6 +77,8 @@
                  ^:interceptors [(body-params/body-params)
                                  bootstrap/html-body]
                  ["/index.html" {:get index-page}]
+                 ["/admin.html" {:get admin-page}]
+                 ["/reset" {:post post-reset}]
                  ["/resources/assets/*static" {:get (static "resources/assets")}]
                  ["/jig.css" {:get css-page}]]))
 
