@@ -15,7 +15,7 @@
   (stop [_ system]
     ;; We pull the latest system on stop.
     (try
-      (let [{:keys [exit out err]} (sh/sh "purge" (:domain config))]
+      (let [{:keys [exit out err]} (sh/sh "sudo" "purge" (:domain config))]
         (cond
          (pos? exit) (errorf "Purge failed with the following (error %d): %s\n%s" exit out err)
          (not (empty? err)) (errorf "Purge error: %s" err)))
