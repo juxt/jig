@@ -15,7 +15,11 @@
   (stop [_ system]
     ;; We pull the latest system on stop.
     (infof "Pulling latest git version")
-    (let [{:keys [exit out err]} (sh/sh "git" "pull")]
+    (let [{:keys [exit out err]}
+          (if-let [dir (:directory config)]
+            (sh/with-sh-dir dir
+              (sh/sh "git" "pull"))
+            (sh/sh "git" "pull"))]
       (cond
        (pos? exit) (errorf "Git failed with the following (error %d): %s\n%s" exit out err)
        (not (empty? err)) (errorf "Git error: %s" err)))
