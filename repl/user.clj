@@ -96,3 +96,17 @@ be included in a production build of the application."
   []
   (let [{components :jig/components} (if system (:jig/config system) (config))]
     (view (system/get-digraph components))))
+
+(defn menu []
+  (doseq [line
+          ["(go)       -- start the system"
+           "(reset)    -- reset the system"
+           "(refresh)  -- recover if a reset fails due to a compilation error"
+           "(menu)     -- show this menu again"]]
+    (println line)))
+
+(defn welcome []
+  (println "Welcome to Jig")
+  (println)
+  (menu)
+  )

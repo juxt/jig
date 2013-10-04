@@ -106,4 +106,7 @@
 
   :profiles {:dev {:dependencies [[org.clojure/tools.namespace "0.2.4"]]
                    :source-paths ["repl"]}}
+
+  :repl-options {:prompt (fn [ns] (str "Jig " ns "> "))
+                 :welcome (user/welcome)}
   )
