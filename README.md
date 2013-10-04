@@ -367,7 +367,33 @@ project.clj file(s) of your project(s) without requiring a JVM restart.
 A further advantage is that you don't have to modify Jig's
 ```project.clj``` file to include dependencies you need in the projects
 it references, you only need to edit the main config file itself (which
-shouldn't be added to git).
+is filtered by .gitignore so that it doesn't get checked in).
+
+### A word on classloading
+
+An external project's classes are loaded in a separate classloader, one
+per project.
+
+However, this classloader will only load classes that are not on Jig's
+classpath. It will not load a different version of Clojure, nor does it
+provide any isolation between components and isn't intended for
+multi-tenanting of applications. Jig is not an application server, it
+merely provides this feature to allow the separation of the development
+of components into different Leiningen projects. You should consider the
+amalgamation of components in Jig as a single composite Clojure
+application.
+
+The Clojure runtime does not distinguish between namespaces that are
+loaded from different classloaders, and all namespaces will appear as
+usual in calls to ns-map, etc.. There is only one Clojure runtime in any
+given Jig instance.
+
+#### Classloader pinning
+
+Unless a project's classloader is explicity pinned, a fresh
+classloader will be created if the project's project.clj file is
+modified, and then all the classes will be reloaded. See below for more
+details about pinning classloaders.
 
 ## Caveats
 
