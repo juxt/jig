@@ -94,9 +94,6 @@
                  [org.clojure/tools.nrepl "0.2.3"]
                  ]
 
-  ;; Only for core.async, remove when possible.
-  :repositories {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"}
-
   ;; Direct access to source project for now, but eventually use lein's aether to find projects.
   :source-paths ["src"
                  "examples/docsite/src"]
