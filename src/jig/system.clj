@@ -212,9 +212,13 @@ helpful in avoiding repeated expensive analysis of project files"
             (reduce (fn [system component]
                       (with-classloaders (some->> component :jig/project :classloader)
                         (try
-                          (-> (.init (:jig/instance component) system)
-                              (validate-system component "init")
-                              (update-in [:jig/components] conj component))
+                          (try
+                            (-> (.init (:jig/instance component) system)
+                                (validate-system component "init")
+                                (update-in [:jig/components] conj component))
+                            (catch clojure.lang.ExceptionInfo e
+                              (errorf "ExceptionInfo: %s %s" (.getMessage e) (ex-data e))
+                              (throw e)))
                           (catch Exception e
                             (errorf e "Failed to initialize component: %s" (:jig/id component))
                             ;; Tell the repl
@@ -237,10 +241,14 @@ helpful in avoiding repeated expensive analysis of project files"
          (fn [system component]
            (with-classloaders (some->> component :jig/project :classloader)
              (try
-               (infof "Starting component '%s'" (:jig/id component))
-               (-> (.start (:jig/instance component) system)
-                   (validate-system component "start")
-                   (update-in [:jig/components] conj component))
+               (try
+                 (infof "Starting component '%s'" (:jig/id component))
+                 (-> (.start (:jig/instance component) system)
+                     (validate-system component "start")
+                     (update-in [:jig/components] conj component))
+                 (catch clojure.lang.ExceptionInfo e
+                   (errorf "ExceptionInfo: %s %s" (.getMessage e) (ex-data e))
+                   (throw e)))
                (catch Exception e
                  (errorf e "Failed to start component: %s" (:jig/id component))
                  ;; Tell the repl
@@ -261,8 +269,12 @@ helpful in avoiding repeated expensive analysis of project files"
         (fn [system component]
           (with-classloaders (some->> component :jig/project :classloader)
             (try
-              (infof "Stopping component '%s'" (:jig/id component))
-              (.stop (:jig/instance component) system)
+              (try
+                (infof "Stopping component '%s'" (:jig/id component))
+                (.stop (:jig/instance component) system)
+                (catch clojure.lang.ExceptionInfo e
+                  (errorf "ExceptionInfo: %s %s" (.getMessage e) (ex-data e))
+                   (throw e)))
               (catch Exception e
                 (errorf e "Failed to stop component (check the logs): %s"
                         (:jig/id component))
@@ -270,7 +282,6 @@ helpful in avoiding repeated expensive analysis of project files"
                 (println "Component failed to stop (check the logs):" (:jig/id component))
                 ;; Return system, the :jig/components-failed-stop may be
                 ;; used by other components (unlikely)
-                (update-in system [:jig/components-failed-stop] conj component))
-              )))
+                (update-in system [:jig/components-failed-stop] conj component)))))
         ;; Seed the reduce with the system
         system)))
