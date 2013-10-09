@@ -219,8 +219,8 @@ helpful in avoiding repeated expensive analysis of project files"
                             (catch clojure.lang.ExceptionInfo e
                               (errorf "ExceptionInfo: %s %s" (.getMessage e) (ex-data e))
                               (throw e)))
-                          (catch Exception e
-                            (errorf e "Failed to initialize component: %s" (:jig/id component))
+                          (catch Throwable t
+                            (errorf t "Failed to initialize component: %s" (:jig/id component))
                             ;; Tell the repl
                             (println "Component failed to initialize (check the logs):" (:jig/id component))
                             (update-in system [:jig/components-failed-init] conj component)
@@ -249,8 +249,8 @@ helpful in avoiding repeated expensive analysis of project files"
                  (catch clojure.lang.ExceptionInfo e
                    (errorf "ExceptionInfo: %s %s" (.getMessage e) (ex-data e))
                    (throw e)))
-               (catch Exception e
-                 (errorf e "Failed to start component: %s" (:jig/id component))
+               (catch Throwable t
+                 (errorf t "Failed to start component: %s" (:jig/id component))
                  ;; Tell the repl
                  (println "Component failed to start (check the logs):" (:jig/id component))
                  (update-in system [:jig/components-failed-start] conj component)
@@ -275,8 +275,8 @@ helpful in avoiding repeated expensive analysis of project files"
                 (catch clojure.lang.ExceptionInfo e
                   (errorf "ExceptionInfo: %s %s" (.getMessage e) (ex-data e))
                    (throw e)))
-              (catch Exception e
-                (errorf e "Failed to stop component (check the logs): %s"
+              (catch Throwable t
+                (errorf t "Failed to stop component (check the logs): %s"
                         (:jig/id component))
                 ;; Tell the repl
                 (println "Component failed to stop (check the logs):" (:jig/id component))
