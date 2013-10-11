@@ -103,7 +103,7 @@
   "Create a project map containing interesting details about a project,
 helpful in avoiding repeated expensive analysis of project files"
   [f components {pinned? :jig/pinned? :as conf}]
-  (infof "Creating project struct for %s with config %s" f conf)
+  (debugf "Creating project struct for %s with config %s" f conf)
   (let [p (->> f str project/read)
         cp (->> p classpath/get-classpath (map io/as-file))]
     {:name (:name p)
@@ -149,12 +149,28 @@ helpful in avoiding repeated expensive analysis of project files"
     project))
 
 (defn reload-project
-  "Reload a project such that recently modified libs are reloaded along with any dependants"
+  "Reload a project such that recently modified libs are reloaded along
+  with any dependants"
   [project]
   (-> project
       (update-in [:tracker] #(apply scan % (:dirs project)))
       announce-reload
       (update-in [:tracker] reload-tracker-in-classloader (:classloader project))))
+
+(defn proxy-classloader
+  "Create a proxy classloader that extends the view provided by the
+  default classloader with a view across all project classloaders. This
+  is required so that tools such as nREPL can load resources that are
+  only reachable from a particular project classloader."
+  [delegates]
+  {:pre (every? (partial instance? ClassLoader) delegates)}
+  (debugf "Create a proxy classloader from %d delegates" (count delegates))
+  (proxy [ClassLoader] []
+    (loadClass [name]
+      (first (keep #(when (.getResource % (str (.replace name \. \/) ".class"))
+                      (.loadClass % name)) delegates)))
+    (getResource [name]
+      (first (keep #(.getResource % name) delegates)))))
 
 (defn init
   "Reset the projects, (re-)initialize the system components"
@@ -230,7 +246,8 @@ helpful in avoiding repeated expensive analysis of project files"
          "After system initialization, system keys are %s"
          (apply str (interpose ", " (keys system))))
 
-        system))))
+        (-> system
+            (assoc :jig/proxy-classloader (proxy-classloader (keep :classloader (:jig/projects system)))))))))
 
 (defn start
   "Start the system"

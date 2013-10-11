@@ -65,7 +65,7 @@
                  ;; core.async
                  [org.clojure/core.async "0.1.222.0-83d0c2-alpha"]
                  ;; Leiningen
-                 [leiningen-core "2.1.0"]
+                 [leiningen-core "2.3.2" :exclusions [org.clojure/tools.nrepl]]
                  ;; Tracing
                  [org.clojure/tools.trace "0.7.5"]
                  ;; Logging
@@ -105,5 +105,6 @@
                    :source-paths ["repl"]}}
 
   :repl-options {:prompt (fn [ns] (str "Jig " ns "> "))
-                 :welcome (user/welcome)}
+                 :welcome (user/welcome)
+                 :nrepl-middleware [jig.nrepl/wrap-jig-loader]}
   )

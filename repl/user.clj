@@ -106,7 +106,7 @@ be included in a production build of the application."
     (println line)))
 
 (defn welcome []
-  (println "Welcome to Jig")
+  (println "Welcome to Jig!")
   (println)
   (menu)
   )
