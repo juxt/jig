@@ -166,9 +166,12 @@ helpful in avoiding repeated expensive analysis of project files"
   {:pre (every? (partial instance? ClassLoader) delegates)}
   (debugf "Create a proxy classloader from %d delegates" (count delegates))
   (proxy [ClassLoader] []
-    (loadClass [name]
-      (first (keep #(when (.getResource % (str (.replace name \. \/) ".class"))
-                      (.loadClass % name)) delegates)))
+    (loadClass
+      ([name]
+         (first (keep #(when (.getResource % (str (.replace name \. \/) ".class"))
+                         (.loadClass % name)) delegates)))
+      ([name resolve]
+         (.loadClass this name)))
     (getResource [name]
       (first (keep #(.getResource % name) delegates)))))
 
