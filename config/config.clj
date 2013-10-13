@@ -95,7 +95,7 @@
                      }
 
   ;; Reloading
-  #_:firefox-reloader #_{:jig/component jig.web.firefox-reload/Component
+  :firefox-reloader {:jig/component jig.web.firefox-reload/Component
                      :jig/dependencies [:examples/docsite :juxtweb/service] ; :congreve/accounts/service
                      :jig.web.firefox-reload/host "localhost"
                      :jig.web.firefox-reload/port 32000
