@@ -68,7 +68,7 @@ of a system. This is usually a single Clojure map (or record). Jig
 provides an implementation of the System Constructor that delegates the
 job of creating the system to components, each component having the same
 lifecycle interface as Stuart describes: ```init```, ```start``` and
-```stop```. The System is creating by threading it through all the
+```stop```. The System is created by threading it through all the
 components.
 
 A reset stops and starts all components. Components are initialized and
@@ -190,7 +190,7 @@ and then
 
     user> (go)
 
-Sync the application by called ```reset```
+Sync the application by calling ```reset```
 
     user> (reset)
 
@@ -443,7 +443,7 @@ sets the project classloader on the thread.
 If an external project depends on a third-party jar which isn't on Jig's
 own classpath, then it will not have been visible to Clojure when
 clojure.core is first loaded. This means that any data readers declared
-in ```/data_readers.clj``` wlil not work. If you use the
+in ```/data_readers.clj``` will not work. If you use the
 ```edn/read-string``` in these projects you cannot assume the
 ```*data-readers*``` dynamic var will contain the data readers declared
 in the third-party jar. The workaround is to use the 2-arg form of
@@ -451,7 +451,7 @@ edn/read edn/read-string and supply the readers explicitly in the option
 map.
 
 For example, when loading Datomic data from a file, you would use the
-following form :-
+following form :
 
     (edn/read-string
        {:readers {'db/id datomic.db/id-literal
@@ -502,8 +502,7 @@ namespace. Jig will then stop working. The current workaround is to
 ensure such a file isn't visible to Jig, either by renaming it or by
 removing the source directory containing it in the project's
 ```project.clj``` file. It is hoped that future versions of Jig will
-avoid this issue by disabling the loading of such files by
-```tools.namespace```.
+avoid this issue by disabling the loading of such files by ```tools.namespace```.
 
 ## FAQ
 
