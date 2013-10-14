@@ -247,7 +247,7 @@ e.g. ```config/config.clj```
 
 For example...
 
-    {:components
+    {:jig/components
       {:hello-app {:jig/component org.example.core/Component}}}
 
 Components will be instantiated with a single argument: the component's
@@ -276,7 +276,7 @@ keys to other components in the configuration.
 
 For example, let's suppose component Y is dependent on component X.
 
-    {:components
+    {:jig/components
       {"X" {:jig/component org.example.core/X}
        "Y" {:jig/component org.example.core/Y
             :jig/dependencies ["X"]}}}
