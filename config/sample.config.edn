@@ -1,5 +1,5 @@
 ;; This config tells Jig which components to run
-{:components
+{:jig/components
  ;; Keys are usually keywords or strings, but can be anything (uuids, urls, ...)
  {
 
