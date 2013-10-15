@@ -10,7 +10,9 @@
 ;; You must not remove this notice, or any other, from this software.
 
 (ns jig.web.firefox-reload
-  (:require jig)
+  (:require
+   [clojure.tools.logging :refer :all]
+   jig)
   (:import
    (jig Lifecycle)
    (java.net Socket)
@@ -21,10 +23,12 @@
   (init [_ system] system)
   (start [_ system]
     (try
+      (infof "Reloading firefox")
       (with-open [sock (Socket. (::host config) (::port config))
                   out (.getOutputStream sock)]
         (.write out (.getBytes "reload"))
         (.flush out))
-      (catch IOException e))
+      (catch IOException e
+        (errorf "Failed to reload firefox")))
     system)
   (stop [_ system] system))
