@@ -475,18 +475,14 @@ contexts (either new projects, or forks of this one).
 If that happens and there's a need to share components between jigs (for
 reasons of component portability) then it will make sense to promote the
 ```Lifecycle``` protocol (and maybe others) to a common library that
-different jigs can use. Until there's an obvious need, I'm not going to
-bother.
+different jigs can use.
 
 ### Caveats with external projects
 
 Jig's support for external projects is very useful. However, there are
-some caveats to be aware of due to the nature of having multiple
-classloaders. Java classloading is a complex area which can cause
-problems with code that isn't intended to be loaded in a different
-classloader to Clojure itself. However, Java classloading is very mature
-and very large systems have been built (e.g. Eclipse) which fully
-exploit the possibilities it enables.
+some caveats to be aware of due to the introduction of multiple
+classloaders. Most if not all of these caveats will be ironed out over
+time.
 
 #### Resource loading
 
@@ -571,6 +567,54 @@ ensure such a file isn't visible to Jig, either by renaming it or by
 removing the source directory containing it in the project's
 ```project.clj``` file. It is hoped that future versions of Jig will
 avoid this issue by disabling the loading of such files by ```tools.namespace```.
+
+#### nREPL symbol resolution
+
+Certain evaluations (e.g. nrepl-jump in nrepl.el) from nREPL clients
+load resources to determine the code defining symbols. When they use the
+usual form of ```clojure.java.io/resource```, the default (Jig)
+classloader is used. Unsurprisingly, symbols declared in external
+projects are defined in namespaces that are not reachable from Jig's own
+classloader, but via the project classloaders it creates each external
+project.
+
+The solution to this issue has 3 parts. Firstly, a proxy classloader is
+created that delegates to each of the project classloaders, providing a
+union across the set of resources in the system. The classloader is
+parented by the default Jig classloader, so all Jig symbols are part of
+this union. (This part is already implemented on the master branch in
+```system.clj```, commit ```99c27```).
+
+Secondly, Jig inserts some custom nREPL middleware that sets the proxy
+classloader into the ```:context-classloader``` slot in the nREPL
+message. This is already implemented.
+
+Finally, the nREPL interruptible-eval middleware which evaluates the code sent
+by nREPL clients is modified to check for the existence of a value in
+this ```:context-classloader``` slot and set it as the context
+classloader on the evaluating thread. This has been implemented in a
+custom version of tools.nrepl available at
+```[malcolmsparks/tools.nrepl "0.2.3"]```. In order to use this you need
+apply the following patch to Leiningen 2.3.3 and rebuild it (or apply a
+similar fix to later versions of Leiningen). In the meantime, I am
+raising a pull request on tools.nrepl to get this work into the master
+branch so future versions of Leiningen will work without modification.
+
+```
+diff --git a/leiningen-core/src/leiningen/core/project.clj b/leiningen-core/src
+index 7bbca62..ac814f3 100755
+--- a/leiningen-core/src/leiningen/core/project.clj
++++ b/leiningen-core/src/leiningen/core/project.clj
+@@ -366,7 +366,7 @@
+                             {:displace true})
+                 :test-selectors {:default (with-meta '(constantly true)
+                                             {:displace true})}
+-                :dependencies '[[org.clojure/tools.nrepl "0.2.3"
++                :dependencies '[[malcolmsparks/tools.nrepl "0.2.3"
+                                  :exclusions [org.clojure/clojure]]
+                                 [clojure-complete "0.2.3"
+                                  :exclusions [org.clojure/clojure]]]
+```
 
 ## FAQ
 
