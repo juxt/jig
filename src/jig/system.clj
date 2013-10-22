@@ -168,12 +168,17 @@ helpful in avoiding repeated expensive analysis of project files"
   (proxy [ClassLoader] []
     (loadClass
       ([name]
-         (first (keep #(when (.getResource % (str (.replace name \. \/) ".class"))
-                         (.loadClass % name)) delegates)))
+         (first
+          (keep #(when (.getResource % (str (.replace name \. \/) ".class"))
+                   (.loadClass % name))
+                ;; We MUST defer to the parent classloader first
+                (cons (.getParent this) delegates))))
       ([name resolve]
          (.loadClass this name)))
     (getResource [name]
-      (first (keep #(.getResource % name) delegates)))))
+      (first (keep #(.getResource % name)
+                   ;; We MUST defer to the parent classloader first
+                   (cons (.getParent this) delegates))))))
 
 (defn init
   "Reset the projects, (re-)initialize the system components"

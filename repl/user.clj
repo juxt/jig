@@ -48,16 +48,19 @@ be included in a production build of the application."
     "clj" (read-string (slurp res)) ; respecting system setting of *read-eval*
     (throw (Exception. (format "No reader for %s" res)))))
 
-(defn config []
+(defn config
   "Read the config from the config-resources. Usually this is
-  config.edn (or config.clj if evaluation is desired). To to avoid merge
-  issues with other's configuration, config.* files are ignored by
-  git. To bootstrap, we use sample.config.edn."
+   config.edn (or config.clj if evaluation is desired). To to avoid
+   merge issues with other's configuration, config.* files are ignored
+   by git. To bootstrap, we use sample.config.edn."
+  []
+  {:post [(not (nil? %))]}
   (apply merge-with merge
          (map #(some-> (first (keep io/resource %))
-                       read-resource) [["config.edn"
-                                         "config.clj"
-                                         "sample.config.edn"]])))
+                       read-resource)
+              [["config.edn"
+                "config.clj"
+                "sample.config.edn"]])))
 
 (declare reset)
 
