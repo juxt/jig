@@ -92,17 +92,11 @@
                  [hiccup "1.0.4"]
                  ;; nREPL
                  [org.clojure/tools.nrepl "0.2.3"]
+                 ;; Tools namespace
+                 [org.clojure/tools.namespace "0.2.4"]
                  ]
 
-  ;; Direct access to source project for now, but eventually use lein's aether to find projects.
-  :source-paths ["src"
-                 "examples/docsite/src"]
-
-  :resource-paths ["resources"
-                   "config"]
-
-  :profiles {:dev {:dependencies [[org.clojure/tools.namespace "0.2.4"]]
-                   :source-paths ["repl"]}}
+  :profiles {:dev {:resource-paths ["config"]}}
 
   :repl-options {:prompt (fn [ns] (str "Jig " ns "> "))
                  :welcome (user/welcome)
