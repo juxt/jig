@@ -1,25 +1,55 @@
-;; This config tells Jig which components to run
+;; This config tells Jig which components to run.
 {:jig/components
- ;; Keys are usually keywords or strings, but can be anything (uuids, urls, ...)
  {
+  ;; Here are three components that  examples
 
-  ;; ----------------------------------------------------------------
-  ;; Examples
-
+  ;; This is a built in component to start a web server on a specific
+  ;; port.  Only jetty is supported currently but the design provides
+  ;; for various implementations.
   :examples/server {:jig/component jig.web.server/Component
                     :io.pedestal.service.http/port 8001
                     :io.pedestal.service.http/type :jetty
                     :io.pedestal.service.http/resource-path "/assets"
                     }
 
+  ;; Pedestal routes are bound to a hostname, allowing for virtual
+  ;; hosts.  For each such virtual host, we can add a component that
+  ;; specifies the scheme and hostname.  This component is provided by
+  ;; Jig and provides an anchor on which to hook multiple applications
+  ;; (or application components), each providing multiple services. The
+  ;; component references the :examples/server as the server it will
+  ;; bind to - it must also reference the :examples/server as a
+  ;; dependency so that the server is initialised first. However, in
+  ;; future, this 'configuration duplication' will be unnecessary.
   :examples/web {:jig/component jig.web.app/Component
                  :jig/dependencies [:examples/server]
                  :jig/scheme :http
                  :jig/hostname "localhost"
                  :jig.web/server :examples/server}
 
-  :examples/docsite {:jig/component examples.docsite.core/ReadmeComponent
+  ;; An application component, which adds routes to a virtual host,
+  ;; bound on a web server. The virtual host component is specified in
+  ;; :jig.web/app-name and also in :jig/dependencies. As above, this
+  ;; 'configuration duplication' will be unnecessary in a future version
+  ;; of Jig. This 'custom' component is defined in an application
+  ;; project, which must be specified in :jig/project. Jig handles the
+  ;; classloading of the application project, as defined by its
+  ;; project.clj file.
+  :examples/docsite {:jig/component jig.docsite.core/ReadmeComponent
                      :jig/dependencies [:examples/web]
                      :jig.web/app-name :examples/web
+                     ;; This component is defined in the application project - it adds custom routes.
+                     :jig/project "examples/docsite/project.clj"
                      }
-  }}
+  }
+
+ ;; In this example, this section is redundant, but it serves to allow
+ ;; options to be specified relating to referenced projects.
+ :jig/projects
+ [{
+   :jig/project "examples/docsite/project.clj"
+   ;; eg. extra classpath, source dirs, etc. here - (until someones has
+   ;; actually added this feature, consider this an 'idea comment')
+   }
+  ]
+ }
