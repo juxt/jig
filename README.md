@@ -13,30 +13,30 @@ Feedback is at the heart of all agile software development processes. If
 you can reduce the time between making a change and seeing the result,
 you can proceed faster, with more confidence and accuracy.
 
-For the vast majority of developers, the impact of changing a line of
-code cannot be determined until the whole system has been rebuilt and
-retested from scratch, which can take ages. While there are many
-advantages to frequent thoroug testing, as a developer the feedback loop
-sometimes feels painfully long, so long that we lose our concentration and focus.
+For the majority of developers, the impact of changing code cannot be
+determined until the entire system has been re-built and
+re-tested. While there are many advantages to frequent and thorough
+testing, for developers the wait is long enough for us to lose our
+concentration and focus.
 
 ![Losing focus - attribution: http://xkcd.com/303/](resources/assets/compiling.png)
 
-Unless you have experienced a development environment that offers _near
-instant feedback upon change_ it is difficult to describe the impact it
-can have on your ability to solve difficult problems, produce
-reliable code quickly and make programming more enjoyable.
+Unless you have experienced a development environment that offers
+_instant feedback upon change_ it is difficult to describe the impact it
+can have on your ability to solve difficult problems, produce reliable
+code quickly and make programming more enjoyable.
 
 Clojure, in the tradition of dynamic languages, comes very close to
 providing this kind of experience right out-of-the-box. In LISP,
 functions are bound to vars, which can be rebound, and when functions
 are applied, the latest binding of the function is used.
 
-In practice, however, there are some minor fiddly issues that add up to
-impair the dependability of the code reloading : adding a new library
-dependency, redeclaring a ```defmulti``` or Clojure protocol, stale
-state referenced in ```def```s and ```defonce```s are a few
-examples. Jig's purpose is to handle all these incidentals for you,
-letting you concentrate more fully on your programming.
+In practice, however, there are some minor quirks that impair the
+dependability of the code reloading : adding a new library dependency,
+redeclaring a ```defmulti``` or Clojure protocol, stale state referenced
+in ```def```s and ```defonce```s are some examples. One of Jig's aims is
+to handle these incidentals for you, letting you concentrate more fully
+on your programming.
 
 Jig builds upon Stuart Sierra's excellent
 [reloaded workflow](http://thinkrelevance.com/blog/2013/06/04/clojure-workflow-reloaded)
@@ -47,33 +47,34 @@ that has changed since the last reset, and anything else that needs
 reloading as a result (Due to the intricacies of Clojure and the JVM,
 this is a non-trivial problem that Stuart has solved). Typically, the
 reset function is bound to a hotkey, Emacs keybinding (I use "C-c r") or
-[something more exotic](http://www.stealthswitch2.com/products/stealthswitch-ii/). The
+[something](http://www.thegreenhead.com/2007/05/big-red-button-doomsday-device-usb-hub.php)
+[more](http://www.dreamcheeky.com/big-red-button)
+[exotic](http://www.stealthswitch2.com/products/stealthswitch-ii/). The
 price of entry is that a developer has to ensure all application state
-is held in a single map or record, called the _system_, otherwise the
-pattern doesn't work. In practice, this is a good architectural policy
-to establish anyway.
+is held in a single map (or record) called the _system_. Otherwise the
+pattern doesn't work but in practice this is a good architectural policy
+to establish regardless.
 
 Jig extends Stuart's work by providing some optional extra features that
 can help in the development of large Clojure systems:
 
 * modularity through componentisation
 * configuration
-* scaling the pattern up to multiple projects
+* support for multiple projects
 * a growing set of common re-usable infrastructure components.
 
 ### Modularity
 
-Stuart describes the System Constructor which represents all the _state_
-of a system. This is usually a single Clojure map (or record). Jig
-provides an implementation of the System Constructor that delegates the
-job of creating the system to components, each component having the same
-lifecycle interface as Stuart describes: ```init```, ```start``` and
-```stop```. The System is created by threading it through all the
-components.
+Stuart describes the System Constructor which creates the initial
+_state_ of a system. Jig provides an implementation of the System
+Constructor that delegates the job of creating the system to components,
+each component having the same lifecycle interface as Stuart describes:
+```init```, ```start``` and ```stop```. The System is created by
+threading it through all the components.
 
-A reset stops and starts all components. Components are initialized and
-started (in dependency order) and stopped (in the reverse order)
-allowing for a clean shutdown of resources.
+A reset stops and restarts all components. Components are initialized
+and started (in dependency order) and stopped (in reverse dependency
+order) allowing for a clean shutdown of resources.
 
 #### Why?
 
@@ -127,26 +128,26 @@ Jig lets you specify configuration for your components in a single
 configuration file. However, components can source their own
 configuration if desired.
 
-### Injection of the System into the Pedestal context
+### Injection of the System into the web request context.
 
 Jig does not have opinions as to how you should build your
 applications. However, if does provide good support for writing
+[Ring](https://github.com/ring-clojure) and
 [Pedestal](http://pedestal.io) services should you wish to keep using
 Jig in your deployment. More details can be found below.
 
 ### Automatic provision of url-for for URI generation
 
-Pedestal boasts bidirectional routes, never hardcode a URI again! Jig
-provides the url-for function in the Pedestal context, and defaults the
+Pedestal boasts bidirectional routes, so that URIs can be generated from
+route definitions rather than determined some other way. Jig provides a
+```url-for``` function in the Pedestal context, and defaults the
 ```app-name``` and ```request``` to make it easy to generate paths that
-make sense in the context of the page.
-
-This is discussed later on, with an example.
+make sense in the context of the page on which the link is placed.
 
 ### Portable web applications
 
-It's often cost-effective for multiple web applications to share the
-same JVM. Jig allows you to host web applications under contextual URI
+It can be cost-effective for multiple web applications to share the same
+JVM. Jig allows you to host web applications under contextual URI
 prefixes. This is a feature made possible by the provision of the
 ```url-for``` function, since 'portable' web applications can use this
 to generate URIs for web links in their content, without resorting to
@@ -171,6 +172,12 @@ extras, should you want them).
 Stable versions of Jig will be tagged in git, so look for those.
 
 ## Usage
+
+Clone the Jig repository as you would any other Clojure project.
+
+    $ git clone https://github.com/juxt/jig
+
+Configure Jig by copying in a config file into the ```config/config.edn```. You can skip this step if you want to see Jig running in its default configuration which includes examples.
 
 If you're using Emacs, load up Jig's ```project.clj``` and
 
@@ -216,6 +223,32 @@ your ```$HOME/.emacs.d/init.el``` to provide a shortcut.
 
 After re-evaluating (or restarting Emacs) you'll be able to reset the
 application using 'Control-c r'.
+
+## Configuration
+
+A configuration specifies the components that you want in your system and the settings they will use. By default, Jig looks for a ```config/config.edn``` file, but you can override this by placing a config file in ```$HOME/.jig/config.edn``` (where $HOME is your home directory). If a configuration file can't be found, a default will be used.
+
+A configuration is a map which usually contains a ```:jig/components``` key listing the
+components in a map (each key in the map is the component's label). You can get a good idea of the format by looking at the ```config/default.edn``` file.
+
+### Includes
+
+It's also possible to link to other configuration files, which are merged into a single config :
+
+```
+{
+ :jig/include ["/home/malcolm/src/octopus/config.clj" "/home/malcolm/src/juxtweb/config.clj"]
+ }
+```
+
+### Formats
+
+While ```.edn``` files are preferred, you can use ```.clj``` if you want
+to evaluate Clojure expressions, such as calculations.
+
+Important: To avoid injection attacks, never use the ```.clj``` suffix
+for configuration you don't entirely control, including user submitted
+configuration.
 
 ## Components
 
@@ -289,13 +322,48 @@ You can also view the component dependency graph from the REPL :-
 
 ### Built-in components
 
-Jig comes will its own components, to provide useful functionality and
-demonstrate how components are written.
+Jig comes with its own components, providing useful functionality and
+demonstrate how components are written. Each component is
+configurable. If you need a component which isn't in this list, I am
+happy to provide it.
 
-Right now, the only components that exist are targetting
-Pedestal. However, you can write (and contribute!) components to
-construct the other examples that Stuart mentions, including schedulers,
-caches, message queues and more besides.
+#### jig.web.ring/Jetty
+
+Provides a Jetty service that can be used by Ring applications.
+
+#### jig.web.ring/Compojure
+
+Amalgamates Compojure routes contributed by other components into a single handler.
+
+#### jig.git/GitPull
+
+Pulls the latest code from a remote git repository. This can be useful
+as part of an automatic continuous delivery mechanism.
+
+#### jig.jmx/JmxMBean
+
+Provides a reload capability, invokable as a JMX operation.
+
+### jig.web.stencil/StencilCache
+
+Clears out the [stencil](https://github.com/davidsantiago/stencil) cache to ensure stale Mustache templates do not survive a system reset.
+
+### jig.nginx/Purge
+
+Purges an nginx reverse proxy to ensure cached pages do not survive a
+system reset.
+
+### jig.nrepl/Server
+
+Provides an nREPL server, useful if the system isn't started with
+```lein repl``` but an nREPL service is still desired.
+
+### jig.web.firefox-reload/Component
+
+A trigger to get Firefox to reload the current page upon every
+rest. Requires the
+[Remote Control addon](https://addons.mozilla.org/en-US/firefox/addon/remote-control/))is
+installed and enabled (the icon should be green).
 
 #### jig.web.server/Component
 
@@ -546,6 +614,25 @@ Up's functionality. Jig is better.
 >  java.lang.IllegalArgumentException: No implementation of method: :init of protocol: #'jig/Lifecycle found for class
 
 Ensure you ```require``` jig before ```import```ing the ```jig/Lifecycle``` protocol.
+
+## Console
+
+By default, a console is provided at http://localhost:8001. This will be
+improved to allow you to browse auto-generated
+[Marginalia](http://fogus.github.io/marginalia/) and
+[codox](https://github.com/weavejester/codox) documentation, view your
+embedded ```TODO```s and ```FIXME```s, enable tracing on vars and run
+tests from the browser, as well as incorporating webhooks for triggering
+a reload remotely.
+
+## Examples
+
+### Sudoku
+
+Many people have asked for a demonstration of how to configure a simple
+Ring application. This is provided as a Sudoku example in the
+```examples/``` directory. It is incorporated in the default
+configuration and the website is accessible at http://localhost:8091/sudoku.html
 
 ## Copyright and License
 

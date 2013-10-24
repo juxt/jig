@@ -42,25 +42,65 @@ be included in a production build of the application."
   development."
   nil)
 
-(defn read-resource [res]
-  (case (second (re-matches #".*\.(.*)" (.getFile res)))
-    "edn" (edn/read-string (slurp res))
-    "clj" (read-string (slurp res)) ; respecting system setting of *read-eval*
-    (throw (Exception. (format "No reader for %s" res)))))
+(defmulti read-config (fn [t s] t))
+
+(defmethod read-config "edn" [_ s]
+  (edn/read-string s))
+
+(defmethod read-config "clj" [_ s]
+  (read-string s)) ; respecting system setting of *read-eval*
+
+(defprotocol ConfigurationSource
+  (get-config-map [_]))
+
+(defmulti merge-config #(cond (map? %1) :map (coll? %2) :coll))
+(defmethod merge-config :map [a b] (merge a b))
+(defmethod merge-config :coll [a b] (concat a b))
+
+(defn follow [m]
+  (if-let [includes (:jig/include m)]
+    (apply merge-with merge-config (map get-config-map includes))
+    m))
+
+(extend-protocol ConfigurationSource
+  java.lang.String
+  (get-config-map [s] (get-config-map (io/file s)))
+  java.io.File
+  (get-config-map [f] (when (and f (.exists f))
+                        (follow
+                         (read-config
+                          (second (re-matches #".*\.(.*)" (.getName f)))
+                          (slurp f)))))
+  java.net.URL
+  (get-config-map [res] (when res
+                          (follow
+                           (read-config
+                            (second (re-matches #".*\.(.*)" (.getFile res)))
+                            (slurp res)))))
+  nil
+  (get-config-map [_] nil))
 
 (defn config
   "Read the config from the config-resources. Usually this is
    config.edn (or config.clj if evaluation is desired). To to avoid
-   merge issues with other's configuration, config.* files are ignored
+   merge issues with others' configuration, config.* files are ignored
    by git. To bootstrap, we use sample.config.edn."
   []
   {:post [(not (nil? %))]}
-  (apply merge-with merge
-         (map #(some-> (first (keep io/resource %))
-                       read-resource)
-              [["config.edn"
-                "config.clj"
-                "sample.config.edn"]])))
+  (apply merge-with merge-config
+         (map #(first (keep get-config-map %))
+              [
+               ;; Pick one from this list
+               [(io/file (System/getProperty "user.home") ".jig/config.edn")
+                (io/file (System/getProperty "user.home") ".jig/config.clj")
+                (io/resource "config.edn")
+                (io/resource "config.clj")
+                (io/resource "default.edn")
+                ]
+               ;; Pick another from this list
+               [(io/resource "console.edn")]
+               ;; Etc.
+               ])))
 
 (declare reset)
 

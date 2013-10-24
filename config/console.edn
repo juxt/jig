@@ -1,16 +1,17 @@
-;; This config tells Jig which components to run.
-{:jig/components
+{
+ :jig/components
  {
-  ;; Here are three components that  examples
+  ;; Console - demonstrating the support for Pedestal services
 
   ;; This is a built in component to start a web server on a specific
   ;; port.  Only jetty is supported currently but the design provides
   ;; for various implementations.
-  :examples/server {:jig/component jig.web.server/Component
-                    :io.pedestal.service.http/port 8001
-                    :io.pedestal.service.http/type :jetty
-                    :io.pedestal.service.http/resource-path "/assets"
-                    }
+  :console/server
+  {:jig/component jig.web.server/Component
+   :io.pedestal.service.http/port 8001
+   :io.pedestal.service.http/type :jetty
+   :io.pedestal.service.http/resource-path "/assets"
+   }
 
   ;; Pedestal routes are bound to a hostname, allowing for virtual
   ;; hosts.  For each such virtual host, we can add a component that
@@ -21,11 +22,12 @@
   ;; bind to - it must also reference the :examples/server as a
   ;; dependency so that the server is initialised first. However, in
   ;; future, this 'configuration duplication' will be unnecessary.
-  :examples/web {:jig/component jig.web.app/Component
-                 :jig/dependencies [:examples/server]
-                 :jig/scheme :http
-                 :jig/hostname "localhost"
-                 :jig.web/server :examples/server}
+  :console/web
+  {:jig/component jig.web.app/Component
+   :jig/dependencies [:console/server]
+   :jig/scheme :http
+   :jig/hostname "localhost"
+   :jig.web/server :console/server}
 
   ;; An application component, which adds routes to a virtual host,
   ;; bound on a web server. The virtual host component is specified in
@@ -35,21 +37,22 @@
   ;; project, which must be specified in :jig/project. Jig handles the
   ;; classloading of the application project, as defined by its
   ;; project.clj file.
-  :examples/docsite {:jig/component jig.docsite.core/ReadmeComponent
-                     :jig/dependencies [:examples/web]
-                     :jig.web/app-name :examples/web
-                     ;; This component is defined in the application project - it adds custom routes.
-                     :jig/project "examples/docsite/project.clj"
-                     }
+  :console/readme
+  {:jig/component jig.console.core/ReadmeComponent
+   :jig/dependencies [:console/web]
+   :jig.web/app-name :console/web
+   :jig/project "examples/console/project.clj"
+   }
+
   }
 
- ;; In this example, this section is redundant, but it serves to allow
- ;; options to be specified relating to referenced projects.
  :jig/projects
- [{
-   :jig/project "examples/docsite/project.clj"
+ [
+  {
+   :jig/project "examples/console/project.clj"
+   :jig/classloader-pinned? false
    ;; eg. extra classpath, source dirs, etc. here - (until someones has
    ;; actually added this feature, consider this an 'idea comment')
-   }
-  ]
+   }]
+
  }

@@ -13,7 +13,6 @@
   (:require
    [clojure
     [edn :as edn]]
-   [clojure.core.async :refer :all]
    [clojure.java
     [io :as io]]
    [clojure.tools

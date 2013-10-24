@@ -62,8 +62,6 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.5.1"]
-                 ;; core.async
-                 [org.clojure/core.async "0.1.222.0-83d0c2-alpha"]
                  ;; Leiningen
                  [leiningen-core "2.3.2" :exclusions [org.clojure/tools.nrepl]]
                  ;; Tracing
@@ -84,16 +82,15 @@
                  [garden "0.1.0-beta6"]
                  ;; Stencil for templating
                  [stencil "0.3.2"]
-                 ;; Markdown
-                 [endophile "0.1.0"]
                  ;; JMX
                  [org.clojure/java.jmx "0.2.0"]
-                 ;; Hiccup
-                 [hiccup "1.0.4"]
                  ;; nREPL
                  [org.clojure/tools.nrepl "0.2.3"]
                  ;; Tools namespace
                  [org.clojure/tools.namespace "0.2.4"]
+                 ;; Back, by popular demand, Ring!
+                 [ring "1.2.0"]
+                 [compojure "1.1.5"]
                  ]
 
   :profiles {:dev {:resource-paths ["config"]}}

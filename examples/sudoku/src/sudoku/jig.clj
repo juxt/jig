@@ -9,9 +9,16 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns jig)
+(ns sudoku.jig
+  (:require
+   jig
+   [sudoku.core :refer (handler)]
+   [jig.web.ring :refer (add-handler)])
+  (:import (jig Lifecycle)))
 
-(defprotocol Lifecycle
-  (init [_ system])
-  (start [_ system])
-  (stop [_ system]))
+(deftype Website [config]
+  Lifecycle
+  (init [_ system]
+    (add-handler handler system config))
+  (start [_ system] system)
+  (stop [_ system] system))

@@ -9,7 +9,7 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns jig.docsite.core
+(ns jig.console.core
   (:require
    [clojure.tools.logging :refer :all]
    jig
@@ -27,7 +27,7 @@
    [garden.units :refer (px pt em percent)]
    [garden.color :refer (hsl rgb)]
    [hiccup.core :refer (html)]
-   [jig.docsite
+   [jig.console
     [markdown :refer (markdown)]]
    )
   (:import (jig Lifecycle)))

@@ -9,7 +9,7 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns jig.docsite.markdown
+(ns jig.console.markdown
   (:require
    [endophile.core :refer (mp to-clj)]
    [clojure.java.io :refer (resource)]))

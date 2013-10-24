@@ -1,0 +1,51 @@
+{
+ :jig/components
+ {
+  ;; ----------------------------------------------------------------
+  ;; Examples
+
+
+  ;; Sudoku - demonstrating the support for good old Ring/Compojure
+
+  :test-ring-handler
+  {:jig/component sudoku.jig/Website
+   :jig/project "examples/sudoku/project.clj"
+   ;; This puzzle is Copyright AI SUDOKU.
+   ;; I have interpreted this usage to fall under 'research purposes'
+   ;; which is allowed http://www.aisudoku.com/index_en.html
+   :puzzle [8 0 0 0 0 0 0 0 0
+            0 0 3 6 0 0 0 0 0
+            0 7 0 0 9 0 2 0 0
+
+            0 5 0 0 0 7 0 0 0
+            0 0 0 0 4 5 7 0 0
+            0 0 0 1 0 0 0 3 0
+
+            0 0 1 0 0 0 0 6 8
+            0 0 8 5 0 0 0 1 0
+            0 9 0 0 0 0 4 0 0]}
+
+  ;; Note the change in the dependency order - Jetty depends on
+  ;; Compojure (for it's handler), while Compojure depends on handlers
+  ;; provided by other components.
+
+  :compojure
+  {:jig/component jig.web.ring/Compojure
+   :jig/dependencies [:test-ring-handler]}
+
+  :jetty
+  {:jig/component jig.web.ring/Jetty
+   :jig/dependencies [:compojure]
+   :port 8091}
+
+  }
+
+ :jig/projects
+ [
+  {
+   :jig/project "examples/sudoku/project.clj"
+   :jig/classloader-pinned? false
+   }
+  ]
+
+ }

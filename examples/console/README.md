@@ -1,10 +1,10 @@
-# docsite
+# Jig console
 
-A Clojure library designed to ... well, that part is up to you.
+Because coding blind isn't as much fun.
 
 ## Usage
 
-FIXME
+Run up Jig. Navigate to http://localhost:8001
 
 ## License
 
