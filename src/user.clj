@@ -90,6 +90,9 @@ be included in a production build of the application."
   (apply merge-with merge-config
          (map #(first (keep get-config-map %))
               [
+               ;; Pick the Jig built-ins first so that they can overridden later
+               [(io/resource "console.edn")]
+
                ;; Pick one from this list
                [(io/file (System/getProperty "user.home") ".jig/config.edn")
                 (io/file (System/getProperty "user.home") ".jig/config.clj")
@@ -97,8 +100,7 @@ be included in a production build of the application."
                 (io/resource "config.clj")
                 (io/resource "default.edn")
                 ]
-               ;; Pick another from this list
-               [(io/resource "console.edn")]
+
                ;; Etc.
                ])))
 
