@@ -14,3 +14,4 @@ pom.xml.asc
 /config/config.*
 /todo.org
 /.nrepl-port
+/*/.lck
