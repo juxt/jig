@@ -655,6 +655,16 @@ Up's functionality. Jig is better.
 
 ## Troubleshooting
 
+### Log files
+
+By default, Jig configures logback and logs are written to
+```$HOME/.jig/logs```. Events such as component init, startup and
+shutdown, and exceptions that occur during these phases, are written to
+here. When the REPL tells you to check the log files, this is where you
+should look.
+
+### 'No implementation of method' when compiling components
+
 >  java.lang.IllegalArgumentException: No implementation of method: :init of protocol: #'jig/Lifecycle found for class
 
 Ensure you ```require``` jig before ```import```ing the ```jig/Lifecycle``` protocol.
