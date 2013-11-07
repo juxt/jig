@@ -95,7 +95,7 @@
 
 (defn validate-system [system component phase]
   (if (nil? system)
-    (throw (ex-info (format "Bad component returned nil for system on %s: %s" phase component) component)))
+    (throw (ex-info (format "Bad component returned nil for system on %s: %s" phase (:jig/id component)) component)))
   system)
 
 (defn project-struct
@@ -295,7 +295,8 @@ helpful in avoiding repeated expensive analysis of project files"
             (try
               (try
                 (infof "Stopping component '%s'" (:jig/id component))
-                (.stop (:jig/instance component) system)
+                (-> (.stop (:jig/instance component) system)
+                    (validate-system component "stop"))
                 (catch clojure.lang.ExceptionInfo e
                   (errorf "ExceptionInfo: %s %s" (.getMessage e) (ex-data e))
                    (throw e)))

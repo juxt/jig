@@ -663,6 +663,17 @@ shutdown, and exceptions that occur during these phases, are written to
 here. When the REPL tells you to check the log files, this is where you
 should look.
 
+### Common errors in a component's init, start and stop functions
+
+You should return the system value, modified if necessary, from each
+component function. If you don't return any value, Jig will detect this
+and throw an error.
+
+Make sure that you do modify the system, but then return using the
+symbol representing the unmodified system. That's a common mistake. Jig
+won't detect that you have returned the same system it gave you, because
+that's normal behaviour.
+
 ### 'No implementation of method' when compiling components
 
 >  java.lang.IllegalArgumentException: No implementation of method: :init of protocol: #'jig/Lifecycle found for class

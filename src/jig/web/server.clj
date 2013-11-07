@@ -132,6 +132,6 @@ mechanism."
         system)))
 
   (stop [_ system]
-    (debugf "Stopping server")
+    (debugf "Stopping server: %s" (get-in system [(:jig/id config) :service-map]))
     (bootstrap/stop (get-in system [(:jig/id config) :service-map]))
     system))
