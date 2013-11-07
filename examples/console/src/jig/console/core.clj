@@ -93,10 +93,7 @@
                  ["/resources/assets/*static" {:get (static "resources/assets")}]
                  ["/jig.css" {:get css-page}]]))
 
-  (start [_ system]
-    (let [cache (clojure.core.cache/lru-cache-factory {})]
-      (stencil.loader/set-cache cache)
-      (assoc system :stencil-cache cache)))
+  (start [_ system] system)
 
   (stop [_ system] system)
   )
