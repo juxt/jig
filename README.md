@@ -252,6 +252,47 @@ Important: To avoid injection attacks, never use the ```.clj``` suffix
 for configuration you don't entirely control, including user submitted
 configuration.
 
+### Dealing with multiple diverging configurations
+
+A very useful trick is to use Clojure's ```#=``` reader macro in the
+```$HOME/.jig/config.clj``` (you can't use an ```.edn``` file for this
+trick). A useful pattern is to load in the default configuration and
+make tweaks to it for the environment you're running Jig in. This helps
+to prevent a proliferation of diveraging configuration files, which is a
+common problem with multiple environments in any configuration
+system. Each configuration can inherit from the defaults and use a
+Clojure program to derive a modified version. What better language than
+Clojure to tweak a map?
+
+Here's an example.
+
+```clojure
+#=(eval
+  (->
+    ;; Start with the original configuration, stored in the git repo
+    (clojure.core/read-string (slurp (str (System/getProperty "user.home") "/src/my-proj/config.clj")))
+
+    ;; Add a 'private' component
+    (assoc-in [:jig/components :firefox-reloader]
+      {:jig/component 'jig.web.firefox-reload/Component
+                  :jig/dependencies [:service :cljs-server]
+                  :jig.web.firefox-reload/host "localhost"
+                  :jig.web.firefox-reload/port 32000
+                  })
+
+    ;; Oh dear, some tricky path munging. We have to change lots of paths!
+    ;; Let's walk the tree.
+    ;; Due to symlinks not working well on Dropbox mounts,
+    ;; replace all instances of relative paths with absolute ones
+    ((partial clojure.walk/postwalk
+      (fn [x]
+        (if-let
+          [path (and (string? x)
+                     (second (re-matches #"\.\./my-proj(.*)" x)))]
+                (str "/home/malcolm/another-path/src/my-proj" path)
+                x))))))
+```
+
 ## Components
 
 You can write your own components by defining a type or record. At the
