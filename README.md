@@ -211,15 +211,17 @@ You should find yourself typing ```(reset)``` rather a lot, and soon
 even that becomes burdensome. Here's some Emacs code you can paste into
 your ```$HOME/.emacs.d/init.el``` to provide a shortcut.
 
-    (defun nrepl-reset ()
-      (interactive)
-      (save-some-buffers)
-      (set-buffer "*nrepl*")
-      (goto-char (point-max))
-      (insert "(user/reset)")
-      (nrepl-return))
+```clojure
+(defun nrepl-reset ()
+  (interactive)
+  (save-some-buffers)
+  (set-buffer "*nrepl*")
+  (goto-char (point-max))
+  (insert "(user/reset)")
+  (nrepl-return))
 
-    (global-set-key (kbd "C-c r") 'nrepl-reset)
+(global-set-key (kbd "C-c r") 'nrepl-reset)
+```
 
 After re-evaluating (or restarting Emacs) you'll be able to reset the
 application using 'Control-c r'.
@@ -235,7 +237,7 @@ components in a map (each key in the map is the component's label). You can get 
 
 It's also possible to link to other configuration files, which are merged into a single config :
 
-```
+```clojure
 {
  :jig/include ["/home/malcolm/src/octopus/config.clj" "/home/malcolm/src/juxtweb/config.clj"]
  }
