@@ -56,5 +56,6 @@
   <!-- To log pedestal internals, enable this
     <logger name="pedestal" level="ALL" />
   -->
+  <logger name="pedestal" level="WARN" />
 
 </configuration>
