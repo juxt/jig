@@ -698,6 +698,14 @@ Up's functionality. Jig is better.
 
 ## Troubleshooting
 
+### Look at the system
+
+Don't forget the system is available in the REPL, as ```user/system```. That's useful for testing what functions are returning.
+
+You can check what's in the system by outputting it to the
+console. ```(keys user/system)``` is often useful if the system gets
+very large and you need to navigate it.
+
 ### Log files
 
 By default, Jig configures logback and logs are written to
