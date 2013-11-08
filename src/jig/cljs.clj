@@ -24,7 +24,7 @@
    (jig Lifecycle)))
 
 (defn deleteDir [f]
-  (infof "Deleting %s" f)
+  (debugf "Deleting %s" f)
   (if (.isDirectory f)
     (doseq [f (.listFiles f)]
       (deleteDir f))
