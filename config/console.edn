@@ -44,14 +44,14 @@
   {:jig/component jig.console.core/ReadmeComponent
    :jig/dependencies [:console/web :stencil-cache]
    :jig.web/app-name :console/web
-   :jig/project "examples/console/project.clj"
+   :jig/project "console/project.clj"
    }
   }
 
  :jig/projects
  [
   {
-   :jig/project "examples/console/project.clj"
+   :jig/project "console/project.clj"
    :jig/classloader-pinned? false
    ;; eg. extra classpath, source dirs, etc. here - (until someones has
    ;; actually added this feature, consider this an 'idea comment')

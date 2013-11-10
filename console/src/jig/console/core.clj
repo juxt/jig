@@ -90,7 +90,7 @@
                  ["/index.html" {:get index-page}]
                  ["/admin.html" {:get admin-page}]
                  ["/reset" {:post post-reset}]
-                 ["/resources/assets/*static" {:get (static "resources/assets")}]
+                 ["/resources/assets/*static" {:get (static "console/resources/assets")}]
                  ["/jig.css" {:get css-page}]]))
 
   (start [_ system] system)
