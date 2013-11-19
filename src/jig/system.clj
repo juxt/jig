@@ -233,21 +233,23 @@ helpful in avoiding repeated expensive analysis of project files"
                   :jig/projects projects}
             system
             (reduce (fn [system component]
-                      (with-classloaders (some->> component :jig/project :classloader)
-                        (try
+                      (if-not (= (:jig/enabled component) false)
+                        (with-classloaders (some->> component :jig/project :classloader)
                           (try
-                            (-> (.init (:jig/instance component) system)
-                                (validate-system component "init")
-                                (update-in [:jig/components] conj component))
-                            (catch clojure.lang.ExceptionInfo e
-                              (errorf "ExceptionInfo: %s %s" (.getMessage e) (ex-data e))
-                              (throw e)))
-                          (catch Throwable t
-                            (errorf t "Failed to initialize component: %s" (:jig/id component))
-                            ;; Tell the repl
-                            (println "Component failed to initialize (check the logs):" (:jig/id component))
-                            (update-in system [:jig/components-failed-init] conj component)
-                            ))))
+                            (try
+                              (-> (.init (:jig/instance component) system)
+                                  (validate-system component "init")
+                                  (update-in [:jig/components] conj component))
+                              (catch clojure.lang.ExceptionInfo e
+                                (errorf "ExceptionInfo: %s %s" (.getMessage e) (ex-data e))
+                                (throw e)))
+                            (catch Throwable t
+                              (errorf t "Failed to initialize component: %s" (:jig/id component))
+                              ;; Tell the repl
+                              (println "Component failed to initialize (check the logs):" (:jig/id component))
+                              (update-in system [:jig/components-failed-init] conj component)
+                              )))
+                        system))
                     seed component-instances)]
         (debugf
          "After system initialization, system keys are %s"
@@ -263,22 +265,24 @@ helpful in avoiding repeated expensive analysis of project files"
   (let [system
         (reduce
          (fn [system component]
-           (with-classloaders (some->> component :jig/project :classloader)
-             (try
+           (if-not (= (:jig/enabled component) false)
+             (with-classloaders (some->> component :jig/project :classloader)
                (try
-                 (infof "Starting component '%s'" (:jig/id component))
-                 (-> (.start (:jig/instance component) system)
-                     (validate-system component "start")
-                     (update-in [:jig/components] conj component))
-                 (catch clojure.lang.ExceptionInfo e
-                   (errorf "ExceptionInfo: %s %s" (.getMessage e) (ex-data e))
-                   (throw e)))
-               (catch Throwable t
-                 (errorf t "Failed to start component: %s" (:jig/id component))
-                 ;; Tell the repl
-                 (println "Component failed to start (check the logs):" (:jig/id component))
-                 (update-in system [:jig/components-failed-start] conj component)
-                 ))))
+                 (try
+                   (infof "Starting component '%s'" (:jig/id component))
+                   (-> (.start (:jig/instance component) system)
+                       (validate-system component "start")
+                       (update-in [:jig/components] conj component))
+                   (catch clojure.lang.ExceptionInfo e
+                     (errorf "ExceptionInfo: %s %s" (.getMessage e) (ex-data e))
+                     (throw e)))
+                 (catch Throwable t
+                   (errorf t "Failed to start component: %s" (:jig/id component))
+                   ;; Tell the repl
+                   (println "Component failed to start (check the logs):" (:jig/id component))
+                   (update-in system [:jig/components-failed-start] conj component)
+                   )))
+             system))
          (assoc system :jig/components []) components)]
     (debugf "After system start, system keys are %s" (apply str (interpose ", " (keys system))))
     system))
@@ -291,22 +295,24 @@ helpful in avoiding repeated expensive analysis of project files"
        reverse ;; Components are stopped in reverse order
        (reduce
         (fn [system component]
-          (with-classloaders (some->> component :jig/project :classloader)
-            (try
+          (if (or (:jig/enabled component) true)
+            (with-classloaders (some->> component :jig/project :classloader)
               (try
-                (infof "Stopping component '%s'" (:jig/id component))
-                (-> (.stop (:jig/instance component) system)
-                    (validate-system component "stop"))
-                (catch clojure.lang.ExceptionInfo e
-                  (errorf "ExceptionInfo: %s %s" (.getMessage e) (ex-data e))
-                   (throw e)))
-              (catch Throwable t
-                (errorf t "Failed to stop component (check the logs): %s"
-                        (:jig/id component))
-                ;; Tell the repl
-                (println "Component failed to stop (check the logs):" (:jig/id component))
-                ;; Return system, the :jig/components-failed-stop may be
-                ;; used by other components (unlikely)
-                (update-in system [:jig/components-failed-stop] conj component)))))
+                (try
+                  (infof "Stopping component '%s'" (:jig/id component))
+                  (-> (.stop (:jig/instance component) system)
+                      (validate-system component "stop"))
+                  (catch clojure.lang.ExceptionInfo e
+                    (errorf "ExceptionInfo: %s %s" (.getMessage e) (ex-data e))
+                    (throw e)))
+                (catch Throwable t
+                  (errorf t "Failed to stop component (check the logs): %s"
+                          (:jig/id component))
+                  ;; Tell the repl
+                  (println "Component failed to stop (check the logs):" (:jig/id component))
+                  ;; Return system, the :jig/components-failed-stop may be
+                  ;; used by other components (unlikely)
+                  (update-in system [:jig/components-failed-stop] conj component))))
+            system))
         ;; Seed the reduce with the system
         system)))
