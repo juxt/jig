@@ -131,6 +131,7 @@ be included in a production build of the application."
   (start)
   :ready)
 
+;; TODO See https://github.com/juxt/jig/issues/3
 (defn reset
   "Stops the system, reloads modified source files, and restarts it."
   []
