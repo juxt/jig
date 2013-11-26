@@ -56,13 +56,17 @@
                (let [[[_ stem lst]] (re-seq #"(.*\.)(.*)" tag)]
                  (join [stem (inc (read-string lst)) "-" "SNAPSHOT"])))))))))
 
+(def pedestal-version "0.2.2")
+
 (defproject jig (get-version)
   :description "A jig for developing systems using component composition. Based on Stuart Sierra's 'reloaded' workflow."
   :url "https://juxt.pro/jig"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.5.1"]
-                 [org.clojure/clojurescript "0.0-1978"]
+                 [org.clojure/clojurescript "0.0-2030"]
+                 ;; core.async
+                 [org.clojure/core.async "0.1.222.0-83d0c2-alpha"]
                  ;; Leiningen
                  [leiningen-core "2.3.2" :exclusions [org.clojure/tools.nrepl]]
                  ;; Tracing
@@ -75,8 +79,8 @@
                  [org.slf4j/log4j-over-slf4j "1.7.2"]
                  ;; Graph algorithms for dependency graphs
                  [jkkramer/loom "0.2.0"]
-                 ;; Pedestal!
-                 [io.pedestal/pedestal.service "0.1.10"]
+                 ;; Pedestal! TODO Upgrade me to 0.2.2
+                 [io.pedestal/pedestal.service ~pedestal-version]
                  ;; (with jetty)
                  [io.pedestal/pedestal.jetty "0.1.10"]
                  ;; Stencil for templating
@@ -90,6 +94,11 @@
                  ;; Back, by popular demand, Ring!
                  [ring "1.2.0"]
                  [compojure "1.1.5"]
+                 ;; MQTT for messaging
+                 [clojurewerkz/machine_head "1.0.0-beta4"]
+                 ;; Pedestal integration needs java.classpath to find ^:shared namespaces
+                 [io.pedestal/pedestal.app-tools ~pedestal-version]
+                 [org.clojure/java.classpath "0.2.0"]
                  ]
 
   :profiles {:dev {:resource-paths ["config"]}}
