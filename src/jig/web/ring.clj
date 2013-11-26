@@ -29,7 +29,7 @@
   (fn [req]
     (h (assoc req :jig/config config))))
 
-(defn add-handler [handler system config]
+(defn add-handler [system handler config]
   ;; Only conj onto the list, if it exists. Otherwise we may overwrite
   ;; existing handlers if multiple components are using this compojure instance.
   (update-in system [:jig.web.ring/handlers] conj (wrap-config handler config)))

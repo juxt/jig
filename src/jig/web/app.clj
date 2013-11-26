@@ -33,10 +33,10 @@
 
 (definterceptorfn
   inject-component-config
-  [c]
+  [config]
   (before
    (fn [context]
-     (assoc context :component c))))
+     (assoc context :component config))))
 
 (definterceptorfn
   wrap-possible-context-classloader
