@@ -295,24 +295,26 @@ helpful in avoiding repeated expensive analysis of project files"
        reverse ;; Components are stopped in reverse order
        (reduce
         (fn [system component]
-          (if (or (:jig/enabled component) true)
-            (with-classloaders (some->> component :jig/project :classloader)
+          ;; Even disabled components are stopped, because they may have
+          ;; been disabled while running. Stop functions should not
+          ;; assume their init/start has completed and be tolerant if
+          ;; expected entries aren't in the system map.
+          (with-classloaders (some->> component :jig/project :classloader)
+            (try
               (try
-                (try
-                  (infof "Stopping component '%s'" (:jig/id component))
-                  (-> (.stop (:jig/instance component) system)
-                      (validate-system component "stop"))
-                  (catch clojure.lang.ExceptionInfo e
-                    (errorf "ExceptionInfo: %s %s" (.getMessage e) (ex-data e))
-                    (throw e)))
-                (catch Throwable t
-                  (errorf t "Failed to stop component (check the logs): %s"
-                          (:jig/id component))
-                  ;; Tell the repl
-                  (println "Component failed to stop (check the logs):" (:jig/id component))
-                  ;; Return system, the :jig/components-failed-stop may be
-                  ;; used by other components (unlikely)
-                  (update-in system [:jig/components-failed-stop] conj component))))
-            system))
+                (infof "Stopping component '%s'" (:jig/id component))
+                (-> (.stop (:jig/instance component) system)
+                    (validate-system component "stop"))
+                (catch clojure.lang.ExceptionInfo e
+                  (errorf "ExceptionInfo: %s %s" (.getMessage e) (ex-data e))
+                  (throw e)))
+              (catch Throwable t
+                (errorf t "Failed to stop component (check the logs): %s"
+                        (:jig/id component))
+                ;; Tell the repl
+                (println "Component failed to stop (check the logs):" (:jig/id component))
+                ;; Return system, the :jig/components-failed-stop may be
+                ;; used by other components (unlikely)
+                (update-in system [:jig/components-failed-stop] conj component)))))
         ;; Seed the reduce with the system
         system)))
