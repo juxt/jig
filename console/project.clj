@@ -22,4 +22,6 @@
                  ;; Stencil for templating
                  [stencil "0.3.2"]
                  ;; Markdown
-                 [endophile "0.1.0"]])
+                 [endophile "0.1.0"]
+                 ;; Liberator for REST services
+                 [liberator "0.9.0"]])

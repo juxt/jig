@@ -42,10 +42,24 @@
   ;; project.clj file.
   :console/readme
   {:jig/component jig.console/Console
-   :jig/project "console/project.clj"
    :jig/dependencies [:console/web :console/stencil-loader]
    :jig.web/app-name :console/web
+   :jig/project "console/project.clj"
    :jig/stencil-loader :console/stencil-loader
+   }
+
+  ;; We listen, if possible, on an MQTT broker
+  #_:console/mqtt
+  #_{:jig/component jig.mqtt/MqttClient
+   :uri "tcp://localhost:1883"
+   }
+
+  #_:console/mqtt-subscriber
+  #_{:jig/component jig.mqtt/MqttSubscriber
+   :jig/dependencies [:console/mqtt]
+   :channel :console/big-red-button
+   :channel-size 50
+   :topics ["/big/red/button"]
    }
   }
 
