@@ -29,8 +29,8 @@
    :jig/hostname "localhost"
    :jig.web/server :console/server}
 
- :stencil-cache
- {:jig/component jig.web.stencil/StencilCache}
+ :console/stencil-loader
+ {:jig/component jig.web.stencil/StencilLoader}
 
   ;; An application component, which adds routes to a virtual host,
   ;; bound on a web server. The virtual host component is specified in
@@ -41,10 +41,11 @@
   ;; classloading of the application project, as defined by its
   ;; project.clj file.
   :console/readme
-  {:jig/component jig.console.core/ReadmeComponent
-   :jig/dependencies [:console/web :stencil-cache]
-   :jig.web/app-name :console/web
+  {:jig/component jig.console/Console
    :jig/project "console/project.clj"
+   :jig/dependencies [:console/web :console/stencil-loader]
+   :jig.web/app-name :console/web
+   :jig/stencil-loader :console/stencil-loader
    }
   }
 
