@@ -9,7 +9,7 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns sudoku.core
+(ns sudoku
   (:refer-clojure :exclude [==])
   (:require
    [jig.web
@@ -36,17 +36,9 @@
           (everyg (partial apply hinto) (map vector vars puzzle))
           (everyg fd/distinct (partition 9 vars))
           (everyg fd/distinct (apply map vector (partition 9 vars)))
-
-          (everyg fd/distinct
-                  (for [x (range 0 9 3)
-                        y (range 0 9 3)]
-                    (for [x' (range x (+ x 3))
-                          y' (range y (+ y 3))]
-                      (get-in
-                       (into [] (map vec (partition 9 vars)))
-                       [x' y']))))
-
-          ))))
+          (everyg fd/distinct (->> vars (partition 3) (partition 3)
+                                   (apply interleave) (partition 3)
+                                   (map (partial apply concat))))))))
 
 (defroutes handler
   (GET "/sudoku.html" [:as req]

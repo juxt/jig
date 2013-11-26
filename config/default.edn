@@ -7,9 +7,12 @@
 
   ;; Sudoku - demonstrating the support for good old Ring/Compojure
 
-  :test-ring-handler
+  :sudoku
   {:jig/component sudoku.jig/Website
    :jig/project "examples/sudoku/project.clj"
+   :name "Sudoku"
+   :description "A difficult Sudoku grid solved using core.logic. Renders the grid using Hiccup and serves it via Ring."
+   :jig.example/uri "http://localhost:8091/sudoku.html"
    ;; This puzzle is Copyright AI SUDOKU.
    ;; I have interpreted this usage to fall under 'research purposes'
    ;; which is allowed http://www.aisudoku.com/index_en.html
@@ -31,7 +34,7 @@
 
   :compojure
   {:jig/component jig.web.ring/Compojure
-   :jig/dependencies [:test-ring-handler]}
+   :jig/dependencies [:sudoku]}
 
   :jetty
   {:jig/component jig.web.ring/Jetty
