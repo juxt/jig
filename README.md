@@ -2,7 +2,7 @@
 
 > “Programming should be interactive, as beautiful as possible, modular, and it should generate assets that are easy to use and learn.” – [Michael O. Church](http://michaelochurch.wordpress.com/2013/08/07/why-clojure-will-win/)
 
-![A jig](resources/assets/main_2right-angle-jig.jpg)
+![A jig](console/resources/assets/main_2right-angle-jig.jpg)
 
 Jig is an __application harness__ providing a beautifully interactive
 development experience __for Clojure projects__.
@@ -19,7 +19,7 @@ re-tested. While there are many advantages to frequent and thorough
 testing, for developers the wait is long enough for us to lose our
 concentration and focus.
 
-![Losing focus - attribution: http://xkcd.com/303/](resources/assets/compiling.png)
+![Losing focus - attribution: http://xkcd.com/303/](console/resources/assets/compiling.png)
 
 Unless you have experienced a development environment that offers
 _instant feedback upon change_ it is difficult to describe the impact it
@@ -100,7 +100,7 @@ new web applications and services onto an existing Clojure deployment.
 
 Here's an example of one of my component graphs.
 
-![Example component dependency graph](resources/assets/example-graph.png)
+![Example component dependency graph](console/resources/assets/example-graph.png)
 
 ### Separation of dev-workflow from application code
 
@@ -361,7 +361,7 @@ You can also view the component dependency graph from the REPL :-
 
     user> (graph)
 
-![Component dependency between X and Y](resources/assets/component-dependencies.png)
+![Component dependency between X and Y](console/resources/assets/component-dependencies.png)
 
 ### Persisting state across resets
 
