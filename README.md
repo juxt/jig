@@ -363,6 +363,13 @@ You can also view the component dependency graph from the REPL :-
 
 ![Component dependency between X and Y](resources/assets/component-dependencies.png)
 
+### Persisting state across resets
+
+There are some situations where you want state to survive across
+resets. Values that are stored in the system anywhere under the
+```:jig/safe``` branch will not be purged. In the vast majority of cases
+you should prefer state to be reinitialised on a reset.
+
 ### Built-in components
 
 Jig comes with its own components, providing useful functionality and
@@ -387,21 +394,21 @@ as part of an automatic continuous delivery mechanism.
 
 Provides a reload capability, invokable as a JMX operation.
 
-### jig.web.stencil/StencilCache
+#### jig.web.stencil/StencilLoader
 
 Clears out the [stencil](https://github.com/davidsantiago/stencil) cache to ensure stale Mustache templates do not survive a system reset.
 
-### jig.nginx/Purge
+#### jig.nginx/Purge
 
 Purges an nginx reverse proxy to ensure cached pages do not survive a
 system reset.
 
-### jig.nrepl/Server
+#### jig.nrepl/Server
 
 Provides an nREPL server, useful if the system isn't started with
 ```lein repl``` but an nREPL service is still desired.
 
-### jig.web.firefox-reload/Component
+#### jig.web.firefox-reload/Component
 
 A trigger to get Firefox to reload the current page upon every
 rest. Requires the
@@ -456,6 +463,50 @@ different Clojure-powered websites on the same JVM.
 
 These examples assume a little knowledge about Pedestal, see
 http://pedestal.io/documentation/service-routing/ for more details.
+
+#### jig.cljs/Builder
+
+Adding a step to compile ClojureScript on every reset can be
+accomplished with this component.
+
+```clojure
+:cljs-builder
+{:jig/component jig.cljs/Builder
+ :jig/project "../myproj/project.clj"
+ :output-dir "../myproj/target/js"
+ :output-to "../myproj/target/js/main.js"
+ :source-map "../myproj/target/js/main.js.map"
+ :optimizations :none
+ :clean-build false
+ }
+```
+
+Setting ```:clean-build``` to true will cause the output directory to be
+deleted on every reset, otherwise an incremental build will be
+performed. The compiler environment is stored under the ```:jig/safe```
+branch to make incremental builds possible. Incremental builds are a lot
+faster and are therefore enabled by default.
+
+You may want to configure different builder components for different
+pages, or for different optimizations. Multiple builds can be achieved
+by adding multiple instances of this component to your configuration.
+
+#### jig.cljs/FileServer
+
+Once the JavaScript and source-map files have been generated, it is
+often useful to be able to serve it from a web server. A minimum of two
+dependencies must be specified, one should be a ```jig.cljs/Builder```
+component instance, the other should be the a
+```jig.web.app/Component``` component instance. A web context should be
+specified, under which resources will be available.
+
+```clojure
+:cljs-server
+  {:jig/component jig.cljs/FileServer
+   :jig/dependencies [:cljs-builder :web]
+   :jig.web/context "/js"
+   }
+```
 
 ## External projects
 
