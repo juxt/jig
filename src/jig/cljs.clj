@@ -20,7 +20,9 @@
    [io.pedestal.service.interceptor :as interceptor :refer (definterceptorfn)]
    [ring.util.response :as ring-resp]
    [ring.util.codec :as codec]
-   [cljs.closure :refer (build)]
+   [cljs
+    [closure :refer (build)]
+    [env :refer (default-compiler-env)]]
    [clojure.java.classpath :as classpath :refer (classpath)]
    [clojure.tools.namespace.find :as ns-find]
    [clojure.tools.namespace.file :as ns-file]
@@ -92,9 +94,7 @@
   (let [res
         (concat (shared-files-in-jars classloader)
                 (shared-files-in-dirs classloader)
-                (project-cljs-files classloader)
-                )
-        ]
+                (project-cljs-files classloader))]
     (debugf "Files to compile: %s" (with-out-str (pprint res)))
     res))
 
@@ -104,7 +104,7 @@
   to utilize Pedestal's dataflow, which is coded using a ^:shared
   metadata tag on the ns. This seems to be a Pedestal convention,
   not (yet) a ClojureScript one."
-  [sources options]
+  [sources options compiler-env]
   (build (reify Compilable
            (-compile [_ options]
              ;; Not sure what this does yet, let's disable it
@@ -115,31 +115,31 @@
                                 (.mkdirs source))
                               (-compile source (assoc options :output-file js-file-name)))
                             (filter :compile? sources))))))
-         options))
+         options
+         compiler-env))
 
 ;; The Jig components
 
 (deftype Builder [config]
   Lifecycle
   (init [_ system]
-    (infof "Building cljs to %s, clean build is %b" (:output-dir config) (:clean-build config))
-    (when (:clean-build config)
-      (when-let [od (file (:output-dir config))]
-        (when (and (.exists od) (.isDirectory od))
-          (deleteDir od))))
-    (build-sources!
-     (all-cljs-on-classpath (-> config :jig/project :classloader))
-     (select-keys config [:output-dir :output-to :optimizations :pretty-print :source-map]))
-    system)
+    (let [compiler-env-path [:jig/safe (:jig/id config) :compiler-env]
+          compiler-env (or (get-in system compiler-env-path) (default-compiler-env))]
+      (infof "Building cljs to %s, clean build is %b" (:output-dir config) (:clean-build config))
+      (infof "Compiler environment is %s" compiler-env)
+      (when (:clean-build config)
+        (when-let [od (file (:output-dir config))]
+          (when (and (.exists od) (.isDirectory od))
+            (deleteDir od))))
+      (build-sources!
+       (all-cljs-on-classpath (-> config :jig/project :classloader))
+       (select-keys config [:output-dir :output-to :optimizations :pretty-print :source-map])
+       (if (:clean-build config) (default-compiler-env) compiler-env))
+      (assoc-in system compiler-env-path compiler-env)))
   (start [_ system]
     system)
   (stop [_ system]
     system))
-
-(comment
-  (let [cl (->> user/system :jig/projects (filter (comp (partial = "mqtt.opensensors.io") :name)) first :classloader)]
-    (build (first (shared-files-in-jars cl)) {})
-    ))
 
 (definterceptorfn static
   [root-path & [opts]]

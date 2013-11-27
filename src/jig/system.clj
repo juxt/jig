@@ -181,7 +181,7 @@ helpful in avoiding repeated expensive analysis of project files"
 
 (defn init
   "Reset the projects, (re-)initialize the system components"
-  [{projects :jig/projects :as system}
+  [{projects :jig/projects safe :jig/safe :as system}
    {project-confs :jig/projects components :jig/components :as config}]
 
   (let [extract-prj (comp :jig/project second)
@@ -230,7 +230,8 @@ helpful in avoiding repeated expensive analysis of project files"
 
       (let [seed {:jig/components []
                   :jig/config config
-                  :jig/projects projects}
+                  :jig/projects projects
+                  :jig/safe safe}
             system
             (reduce (fn [system component]
                       (if-not (= (:jig/enabled component) false)

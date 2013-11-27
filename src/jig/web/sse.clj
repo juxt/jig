@@ -14,7 +14,7 @@
    [io.pedestal.service.http.sse :as sse]
    [jig.web.app :refer (add-routes)]
    [clojure.core
-    [async :refer :all]]
+    [async :refer (alts!!)]]
    [clojure.tools
     [logging :refer :all]]
    jig)
