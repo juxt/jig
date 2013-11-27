@@ -66,7 +66,7 @@
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [org.clojure/clojurescript "0.0-2030"]
                  ;; core.async
-                 [org.clojure/core.async "0.1.222.0-83d0c2-alpha"]
+                 [org.clojure/core.async "0.1.256.0-1bf8cf-alpha"]
                  ;; Leiningen
                  [leiningen-core "2.3.2" :exclusions [org.clojure/tools.nrepl]]
                  ;; Tracing
