@@ -126,7 +126,6 @@
     (let [compiler-env-path [:jig/safe (:jig/id config) :compiler-env]
           compiler-env (or (get-in system compiler-env-path) (default-compiler-env))]
       (infof "Building cljs to %s, clean build is %b" (:output-dir config) (:clean-build config))
-      (infof "Compiler environment is %s" compiler-env)
       (when (:clean-build config)
         (when-let [od (file (:output-dir config))]
           (when (and (.exists od) (.isDirectory od))
