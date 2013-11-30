@@ -21,7 +21,10 @@
       (print (str "<" (name (:tag e))))
       (when (:attrs e)
 	(doseq [attr (:attrs e)]
-	  (print (str " " (name (key attr)) "='" (val attr)"'"))))
+	  (print (str " " (name (key attr))
+                      "='"
+                      (let [v (val attr)] (if (coll? v) (apply str v) v))
+                      "'"))))
       (if (:content e)
 	(do
 	  (print ">")
