@@ -38,8 +38,6 @@
                  [io.pedestal/pedestal.service ~pedestal-version]
                  ;; (with jetty)
                  [io.pedestal/pedestal.jetty "0.1.10"]
-                 ;; Stencil for templating
-                 [stencil "0.3.2"]
                  ;; JMX
                  [org.clojure/java.jmx "0.2.0"]
                  ;; nREPL

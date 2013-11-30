@@ -9,24 +9,14 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(load-file "project-header.clj")
+(load-file (str (System/getProperty "leiningen.original.pwd") "/../../project-header.clj"))
 
-(defproject console (get-version)
+(defproject jig/stencil (get-version)
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.5.1"]
-                 ;; Hiccup
-                 [hiccup "1.0.4"]
-                 ;; CSS for examples
-                 [garden "0.1.0-beta6"]
+  :dependencies [
+                 [org.clojure/clojure "1.5.1"]
                  ;; Stencil for templating
-                 [stencil "0.3.2"]
-                 ;; Markdown
-                 [endophile "0.1.0"]
-                 ;; Liberator for REST services
-                 [liberator "0.9.0"]
-                 ;; Jig extensions
-                 [jig/stencil ~(get-version)]
-                 ])
+                 [stencil "0.3.2"]])
