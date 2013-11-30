@@ -77,6 +77,11 @@
           [:h2 {:margin-top (px 40)}]))
         (ring-resp/content-type "text/css"))))
 
+
+#_(take 10 (->> "README.md" slurp mp to-clj
+              (map emit-element)
+              ))
+
 (defbefore index-page [context]
   (page-response context (->> "README.md" slurp mp to-clj
                               (map emit-element) dorun with-out-str)))
@@ -220,7 +225,7 @@
           ["/system" {:any (create-system-handler config)}]
           ["/examples" ^:interceptors [bootstrap/html-body] {:get examples-page}]
           ["/reset" {:post post-reset}]
-          ["/resources/assets/*path" {:get (static ::resources "console/resources/assets")}]
+          ["/console/resources/assets/*path" {:get (static ::resources "console/resources/assets")}]
           ["/bootstrap/*path" {:get (static ::bootstrap "console/resources/assets/bootstrap")}]
           ["/jig.css" {:get css-page}]])
 
