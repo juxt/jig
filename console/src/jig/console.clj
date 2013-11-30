@@ -205,7 +205,7 @@
    (fn [req]
      (infof "Request for static is %s" req)
      (ring-resp/file-response
-      (codec/url-decode (get-in req [:path-params :static]))
+      (codec/url-decode (get-in req [:path-params :path]))
       {:root root-path, :index-files? true, :allow-symlinks? false}))))
 
 (deftype Console [config]
@@ -220,7 +220,7 @@
           ["/system" {:any (create-system-handler config)}]
           ["/examples" ^:interceptors [bootstrap/html-body] {:get examples-page}]
           ["/reset" {:post post-reset}]
-          ["/resources/assets/*static" {:get (static ::resources "console/resources/assets")}]
+          ["/resources/assets/*path" {:get (static ::resources "console/resources/assets")}]
           ["/bootstrap/*path" {:get (static ::bootstrap "console/resources/assets/bootstrap")}]
           ["/jig.css" {:get css-page}]])
 
