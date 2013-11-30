@@ -34,7 +34,6 @@
                  [org.slf4j/log4j-over-slf4j "1.7.2"]
                  ;; Graph algorithms for dependency graphs
                  [jkkramer/loom "0.2.0"]
-                 ;; Pedestal! TODO Upgrade me to 0.2.2
                  [io.pedestal/pedestal.service ~pedestal-version]
                  ;; (with jetty)
                  [io.pedestal/pedestal.jetty "0.1.10"]
