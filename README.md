@@ -164,12 +164,9 @@ REPL, with full details and stack traces written to the log file..
 
 ## Releases and Dependency Information
 
-Jig is is not a library and projects don't depend on it. Rather, you
-clone this repository, configure it to point at an existing (external)
-project and automatically get Stuart's workflow (plus some optional
-extras, should you want them).
-
-Stable versions of Jig will be tagged in git, so look for those.
+The stable version is 1.3.0. There is a 1.4.0-RC1 release which should
+be considered experimental since it is piloting an approach to placing
+Jig components into their own sub-projects.
 
 ## Usage
 
