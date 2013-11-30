@@ -19,6 +19,9 @@
    [stencil.parser :refer (parse)])
   (:import (jig Lifecycle)))
 
+;; These functions need to be redefined to allow multiple instances of a
+;; stencil cache to co-exist, so stencil caches can be used by multiple
+;; independent components.
 (defn cache
   ([parsed-template-cache template-name template-variant template-src]
      (cache parsed-template-cache template-name template-variant template-src (parse template-src)))
@@ -52,7 +55,6 @@
                     template-name
                     template-variant
                     (variant-fn template-src))))))))
-
 
 ;; Stencil is a little painful in development because it caches
 ;; templates for performance (which is great in production). But we can
