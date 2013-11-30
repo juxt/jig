@@ -27,6 +27,6 @@
                  [endophile "0.1.0"]
                  ;; Liberator for REST services
                  [liberator "0.9.0"]
-                 ;; Jig extensions
-                 [jig/stencil ~(get-version)]
-                 ])
+                 ]
+  :source-paths ["src" "../extensions/stencil/src"]
+  )
