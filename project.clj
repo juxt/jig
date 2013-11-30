@@ -9,52 +9,7 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(require '(clojure [string :refer (join)]
-                   [edn :as edn])
-         '(clojure.java [shell :refer (sh)]
-                        [io :as io]))
-
-(def default-version "0.0.1-SNAPSHOT")
-
-(defn head-ok []
-  (-> (sh "git" "rev-parse" "--verify" "HEAD")
-      :exit zero?))
-
-(defn refresh-index []
-  (sh "git" "update-index" "-q" "--ignore-submodules" "--refresh"))
-
-(defn unstaged-changes []
-  (-> (sh "git" "diff-files" "--quiet" "--ignore-submodules")
-      :exit zero? not))
-
-(defn uncommitted-changes []
-  (-> (sh "git" "diff-index" "--cached" "--quiet" "--ignore-submodules" "HEAD" "--")
-      :exit zero? not))
-
-;; We don't want to keep having to 'bump' the version when we are
-;; sitting on a more capable versioning system: git.
-(defn get-version []
-  (cond
-   (not (let [gitdir (io/file ".git")]
-          (and (.exists gitdir)
-               (.isDirectory gitdir))))
-   default-version
-
-   (not (head-ok)) (throw (ex-info "HEAD not valid" {}))
-
-   :otherwise
-   (do
-     (refresh-index)
-     (let [{:keys [exit out err]} (sh "git" "describe" "--tags" "--long")]
-       (if (= 128 exit) default-version
-           (let [[[_ tag commits hash]] (re-seq #"(.*)-(.*)-(.*)" out)]
-             (if (and
-                  (zero? (edn/read-string commits))
-                  (not (unstaged-changes))
-                  (not (uncommitted-changes)))
-               tag
-               (let [[[_ stem lst]] (re-seq #"(.*\.)(.*)" tag)]
-                 (join [stem (inc (read-string lst)) "-" "SNAPSHOT"])))))))))
+(load-file (str (System/getProperty "leiningen.original.pwd") "/project-header.clj"))
 
 (def pedestal-version "0.2.2")
 

@@ -29,8 +29,9 @@
    :jig/hostname "localhost"
    :jig.web/server :console/server}
 
- :console/stencil-loader
- {:jig/component jig.web.stencil/StencilLoader}
+  :console/stencil-loader
+  {:jig/component jig.web.stencil/StencilLoader
+   :jig/project "console/project.clj"}
 
   ;; An application component, which adds routes to a virtual host,
   ;; bound on a web server. The virtual host component is specified in
