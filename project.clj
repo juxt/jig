@@ -9,7 +9,9 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(load-file (str (System/getProperty "leiningen.original.pwd") "/project-header.clj"))
+(load-file (str (when-let [pwd (System/getProperty "leiningen.original.pwd")]
+                  (str pwd "/"))
+                "project-header.clj"))
 
 (def pedestal-version "0.2.2")
 
