@@ -14,6 +14,7 @@
    [clojure.tools.logging :refer :all]
    [clojure.pprint :refer (pprint)]
    [clojure.string :as string]
+   [clojure.java.io :as io]
    jig
    [jig
     [reset :as reset]]
@@ -44,6 +45,17 @@
 (defn menu [system]
   (remove nil?
           [["System" ::system]
+           ["Config" nil]
+           ["Components" nil]
+           ["Docs" nil]
+           ["Tasks" ::work-page]
+           ["Testing" nil]
+           ["Structure" nil]
+           ["Stats" nil]
+           ["Tracing" nil]
+           ["Profiling" nil]
+           ["Visualisations" nil]
+           ["Help" nil]
            (when (has-examples? system) ["Examples" ::examples-page])]))
 
 (defn render-page [system component route-name url-for web-context content]
@@ -54,7 +66,7 @@
     :menu (for [[name link] (menu system)]
             {:listitem
              (html [:li (when (= route-name link) {:class "active"})
-                    [:a {:href (url-for link)} name]])})}))
+                    [:a {:href (if link (url-for link) "/")} name]])})}))
 
 (defn page-response [context content]
   (assoc context :response
@@ -186,6 +198,61 @@
                          ::web-context (let [ctx (get-in context [:app :jig.web/context])]
                                          (if (= ctx "/") "" ctx)))))))))
 
+
+(defn find-todo-lines [f]
+  (filter :todo
+        (map
+         (partial zipmap [:file :line :todo])
+         (map vector
+              (repeat (str f))
+              (map inc (range))
+              (map #(second (re-find (re-pattern (str \T \O \D \O \: \? \\ \s \* \( \. \* \))) %)) (line-seq (io/reader f)))
+              ))))
+
+(defn extract-snippet [file line]
+  (apply str
+         (interpose \newline
+                    (->> file (io/reader) line-seq (drop (- line 5)) (take 10)))))
+
+(defn todo-finder [dir]
+  (apply concat
+         (for [f (.listFiles dir)]
+           (cond
+            (.isDirectory f) (todo-finder f)
+            (.isFile f) (find-todo-lines f)))))
+
+
+(defbefore work-page [{:keys [url-for system component] :as context}]
+  (page-response context
+                 (html
+                  [:h1 "Work"]
+                  (for [project (-> system :jig/projects)]
+                    (list
+                     [:h2 (:name project)]
+                     (let [paths (->> project :project :source-paths (map (comp (memfn getCanonicalFile) io/file)))
+                           todos (mapcat todo-finder paths)]
+                       (list
+                        [:p (format "%d remaining tasks" (count todos))]
+                        [:ul
+                         (for [{:keys [file line todo]} todos]
+                           [:div
+                            [:h4 (str \T \O \D \O)]
+                            [:p [:i todo]]
+                            [:p "File: " file]
+                            [:p "Line: " line]
+                            [:pre (extract-snippet file line)]
+                            ])]
+
+                        #_[:pre (with-out-str (pprint (mapcat todo-finder paths)))]
+                        )
+
+                       )
+                     #_[:pre (with-out-str (pprint (-> project :project)))])
+
+                    )
+
+                  )))
+
 (defbefore admin-page [{:keys [url-for system] :as context}]
   (page-response context
                  (html
@@ -222,6 +289,7 @@
          ["/" {:get root-page}
           ["/index" ^:interceptors [bootstrap/html-body] {:get index-page}]
           ["/console" ^:interceptors [bootstrap/html-body] {:get admin-page}]
+          ["/work" ^:interceptors [bootstrap/html-body] {:get work-page}]
           ["/system" {:any (create-system-handler config)}]
           ["/examples" ^:interceptors [bootstrap/html-body] {:get examples-page}]
           ["/reset" {:post post-reset}]
