@@ -27,41 +27,8 @@
    [leiningen.core.classpath :as classpath]
    [loom.graph :refer (graph digraph)]
    [loom.io :refer (view)]
-   [loom.alg :refer (post-traverse dag? topsort)]))
-
-;; This is like classlojure's with-classloader in that it sets the
-;; context classloader. Unlike classlojure, it will only do so if the
-;; given classloader isn't nil.
-(defmacro with-context-classloader [cl & body]
-  `(if ~cl
-     (binding [*use-context-classloader* true]
-       (let [cl# (.getContextClassLoader (Thread/currentThread))]
-         (try (.setContextClassLoader (Thread/currentThread) ~cl)
-              ~@body
-              (finally
-                (.setContextClassLoader (Thread/currentThread) cl#)))))
-     (do
-       ~@body)))
-
-;; Clojure will first check the binding in clojure.lang.Compiler/LOADER,
-;; and only if that is empty will it try the context classloader. To
-;; ensure that classes are loaded from a particular classloader, we must
-;; bind it to clojure.lang.Compiler/LOADER. The function allows for a
-;; nil classloader.
-(defmacro with-classloader [cl & body]
-  `((fn []
-      (when ~cl
-        (. clojure.lang.Var (pushThreadBindings {clojure.lang.Compiler/LOADER ~cl})))
-      (try
-        ~@body
-          (finally
-            (when ~cl
-              (. clojure.lang.Var (popThreadBindings))))))))
-
-(defmacro with-classloaders [cl & body]
-  `(with-classloader ~cl
-    (with-context-classloader ~cl
-      ~@body)))
+   [loom.alg :refer (post-traverse dag? topsort)]
+   [cemerick.pomegranate :as pomegranate]))
 
 (defn instantiate [{id :jig/id component :jig/component project :jig/project :as config}]
   (when (nil? component)
@@ -71,15 +38,16 @@
   (when (nil? (symbol (namespace component)))
     (throw (ex-info (format "Namespace not found: %s" (symbol (namespace component)))
                     {})))
-  (with-classloader (:classloader project)
-    (require (symbol (namespace component)))
-    (debugf "Instantiating component: %s" id)
-    (let [typ (ns-resolve (symbol (namespace component)) (symbol (name component)))]
-      (when (nil? typ) (throw (Exception. (format "Cannot find component: %s" component))))
-      (let [ctr (.getConstructor typ (into-array Class [Object]))]
-        (when (nil? ctr)
-          (throw (Exception. (format "Component must have a no-arg constructor: %s" component))))
-        (.newInstance ctr (into-array [config]))))))
+
+  (require (symbol (namespace component)))
+
+  (debugf "Instantiating component: %s" id)
+  (let [typ (ns-resolve (symbol (namespace component)) (symbol (name component)))]
+    (when (nil? typ) (throw (Exception. (format "Cannot find component: %s" component))))
+    (let [ctr (.getConstructor typ (into-array Class [Object]))]
+      (when (nil? ctr)
+        (throw (Exception. (format "Component must have a no-arg constructor: %s" component))))
+      (.newInstance ctr (into-array [config])))))
 
 (defn get-digraph [components]
   (->> components
@@ -101,20 +69,19 @@
 (defn project-struct
   "Create a project map containing interesting details about a project,
 helpful in avoiding repeated expensive analysis of project files"
-  [f components {pinned? :jig/pinned? :as conf}]
+  [f components conf]
   (debugf "Creating project struct for %s with config %s" f conf)
   (let [p (->> f str project/read)
         cp (->> p classpath/get-classpath (map io/as-file))]
+
+    (doseq [f cp] (pomegranate/add-classpath f))
+
     {:name (:name p)
      :components components
      :project-file f
      :last-modified (.lastModified f)
      :project p
      :classpath cp
-     :pinned? pinned?
-     :classloader (->> cp
-                       (map io/as-url)
-                       into-array (java.net.URLClassLoader.))
      :dirs (->> cp (filter (memfn isDirectory)))
      :tracker (track/tracker)}))
 
@@ -124,17 +91,8 @@ helpful in avoiding repeated expensive analysis of project files"
   (println (format ":reloading %s (%s)" name (apply str (interpose " " (:clojure.tools.namespace.track/load tracker)))))
   project)
 
-(defn reload-tracker-in-classloader [tracker ldr]
-  (with-classloader ldr
-    (reload/track-reload tracker)))
-
 (defn refresh-project [project]
-  (if (not (:pinned? project))
-    (project-struct (:project-file project) (:components project) false)
-    (do
-      (warnf "Project (%s) should be refreshed but is configured as pinned, so will not refresh it."
-             (:project-file project))
-      project)))
+  (project-struct (:project-file project) (:components project) false))
 
 (defn ensure-fresh-project
   "If the project.clj file of a project has been modified, reload the project info"
@@ -151,33 +109,11 @@ helpful in avoiding repeated expensive analysis of project files"
   "Reload a project such that recently modified libs are reloaded along
   with any dependants"
   [project]
+  (debugf "Reload project: %s" project)
   (-> project
       (update-in [:tracker] #(apply scan % (:dirs project)))
       announce-reload
-      (update-in [:tracker] reload-tracker-in-classloader (:classloader project))))
-
-(defn proxy-classloader
-  "Create a proxy classloader that extends the view provided by the
-  default classloader with a view across all project classloaders. This
-  is required so that tools such as nREPL can load resources that are
-  only reachable from a particular project classloader."
-  [delegates]
-  {:pre (every? (partial instance? ClassLoader) delegates)}
-  (debugf "Create a proxy classloader from %d delegates" (count delegates))
-  (proxy [ClassLoader] []
-    (loadClass
-      ([name]
-         (first
-          (keep #(when (.getResource % (str (.replace name \. \/) ".class"))
-                   (.loadClass % name))
-                ;; We MUST defer to the parent classloader first
-                (cons (.getParent this) delegates))))
-      ([name resolve]
-         (.loadClass this name)))
-    (getResource [name]
-      (first (keep #(.getResource % name)
-                   ;; We MUST defer to the parent classloader first
-                   (cons (.getParent this) delegates))))))
+      (update-in [:tracker] reload/track-reload)))
 
 (defn init
   "Reset the projects, (re-)initialize the system components"
@@ -235,29 +171,27 @@ helpful in avoiding repeated expensive analysis of project files"
             system
             (reduce (fn [system component]
                       (if-not (= (:jig/enabled component) false)
-                        (with-classloaders (some->> component :jig/project :classloader)
+                        (try
                           (try
-                            (try
-                              (-> (.init (:jig/instance component) system)
-                                  (validate-system component "init")
-                                  (update-in [:jig/components] conj component))
-                              (catch clojure.lang.ExceptionInfo e
-                                (errorf "ExceptionInfo: %s %s" (.getMessage e) (ex-data e))
-                                (throw e)))
-                            (catch Throwable t
-                              (errorf t "Failed to initialize component: %s" (:jig/id component))
-                              ;; Tell the repl
-                              (println "Component failed to initialize (check the logs):" (:jig/id component))
-                              (update-in system [:jig/components-failed-init] conj component)
-                              )))
+                            (-> (.init (:jig/instance component) system)
+                                (validate-system component "init")
+                                (update-in [:jig/components] conj component))
+                            (catch clojure.lang.ExceptionInfo e
+                              (errorf "ExceptionInfo: %s %s" (.getMessage e) (ex-data e))
+                              (throw e)))
+                          (catch Throwable t
+                            (errorf t "Failed to initialize component: %s" (:jig/id component))
+                            ;; Tell the repl
+                            (println "Component failed to initialize (check the logs):" (:jig/id component))
+                            (update-in system [:jig/components-failed-init] conj component)
+                            ))
                         system))
                     seed component-instances)]
         (debugf
          "After system initialization, system keys are %s"
          (apply str (interpose ", " (keys system))))
 
-        (-> system
-            (assoc :jig/proxy-classloader (proxy-classloader (keep :classloader (:jig/projects system)))))))))
+        system))))
 
 (defn start
   "Start the system"
@@ -267,22 +201,21 @@ helpful in avoiding repeated expensive analysis of project files"
         (reduce
          (fn [system component]
            (if-not (= (:jig/enabled component) false)
-             (with-classloaders (some->> component :jig/project :classloader)
+             (try
                (try
-                 (try
-                   (infof "Starting component '%s'" (:jig/id component))
-                   (-> (.start (:jig/instance component) system)
-                       (validate-system component "start")
-                       (update-in [:jig/components] conj component))
-                   (catch clojure.lang.ExceptionInfo e
-                     (errorf "ExceptionInfo: %s %s" (.getMessage e) (ex-data e))
-                     (throw e)))
-                 (catch Throwable t
-                   (errorf t "Failed to start component: %s" (:jig/id component))
-                   ;; Tell the repl
-                   (println "Component failed to start (check the logs):" (:jig/id component))
-                   (update-in system [:jig/components-failed-start] conj component)
-                   )))
+                 (infof "Starting component '%s'" (:jig/id component))
+                 (-> (.start (:jig/instance component) system)
+                     (validate-system component "start")
+                     (update-in [:jig/components] conj component))
+                 (catch clojure.lang.ExceptionInfo e
+                   (errorf "ExceptionInfo: %s %s" (.getMessage e) (ex-data e))
+                   (throw e)))
+               (catch Throwable t
+                 (errorf t "Failed to start component: %s" (:jig/id component))
+                 ;; Tell the repl
+                 (println "Component failed to start (check the logs):" (:jig/id component))
+                 (update-in system [:jig/components-failed-start] conj component)
+                 ))
              system))
          (assoc system :jig/components []) components)]
     (debugf "After system start, system keys are %s" (apply str (interpose ", " (keys system))))
@@ -300,22 +233,21 @@ helpful in avoiding repeated expensive analysis of project files"
           ;; been disabled while running. Stop functions should not
           ;; assume their init/start has completed and be tolerant if
           ;; expected entries aren't in the system map.
-          (with-classloaders (some->> component :jig/project :classloader)
+          (try
             (try
-              (try
-                (infof "Stopping component '%s'" (:jig/id component))
-                (-> (.stop (:jig/instance component) system)
-                    (validate-system component "stop"))
-                (catch clojure.lang.ExceptionInfo e
-                  (errorf "ExceptionInfo: %s %s" (.getMessage e) (ex-data e))
-                  (throw e)))
-              (catch Throwable t
-                (errorf t "Failed to stop component (check the logs): %s"
-                        (:jig/id component))
-                ;; Tell the repl
-                (println "Component failed to stop (check the logs):" (:jig/id component))
-                ;; Return system, the :jig/components-failed-stop may be
-                ;; used by other components (unlikely)
-                (update-in system [:jig/components-failed-stop] conj component)))))
+              (infof "Stopping component '%s'" (:jig/id component))
+              (-> (.stop (:jig/instance component) system)
+                  (validate-system component "stop"))
+              (catch clojure.lang.ExceptionInfo e
+                (errorf "ExceptionInfo: %s %s" (.getMessage e) (ex-data e))
+                (throw e)))
+            (catch Throwable t
+              (errorf t "Failed to stop component (check the logs): %s"
+                      (:jig/id component))
+              ;; Tell the repl
+              (println "Component failed to stop (check the logs):" (:jig/id component))
+              ;; Return system, the :jig/components-failed-stop may be
+              ;; used by other components (unlikely)
+              (update-in system [:jig/components-failed-stop] conj component))))
         ;; Seed the reduce with the system
         system)))

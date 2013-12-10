@@ -68,7 +68,6 @@
  [
   {
    :jig/project "console/project.clj"
-   :jig/classloader-pinned? false
    ;; eg. extra classpath, source dirs, etc. here - (until someones has
    ;; actually added this feature, consider this an 'idea comment')
    }]

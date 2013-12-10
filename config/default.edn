@@ -47,7 +47,6 @@
  [
   {
    :jig/project "examples/sudoku/project.clj"
-   :jig/classloader-pinned? false
    }
   ]
 

@@ -58,6 +58,5 @@
   :profiles {:dev {:resource-paths ["config"]}}
 
   :repl-options {:prompt (fn [ns] (str "Jig " ns "> "))
-                 :welcome (user/welcome)
-                 :nrepl-middleware [jig.nrepl/wrap-jig-loader]}
+                 :welcome (user/welcome)}
   )

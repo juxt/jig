@@ -170,11 +170,20 @@ Jig components into their own sub-projects.
 
 ## Usage
 
+Normally you'll be used to creating with a project with ```lein new```,
+cd'ing to the newly created directory, perhaps adding some plugins to
+its ```project.clj``` file, and running ```lein```. Working with Jig is
+different, in that you run ```lein``` from the Jig project directory and
+'point' the configuration at one (or more) of your existing Leiningen
+projects.
+
 Clone the Jig repository as you would any other Clojure project.
 
     $ git clone https://github.com/juxt/jig
 
-Configure Jig by copying in a config file into the ```config/config.edn```. You can skip this step if you want to see Jig running in its default configuration which includes examples.
+Configure Jig by copying in a config file into the
+```config/config.edn```. You can skip this step if you want to see Jig
+running in its default configuration which includes examples.
 
 If you're using Emacs, load up Jig's ```project.clj``` and
 
@@ -225,7 +234,15 @@ application using 'Control-c r'.
 
 ## Configuration
 
-A configuration specifies the components that you want in your system and the settings they will use. By default, Jig looks for a ```config/config.edn``` file, but you can override this by placing a config file in ```$HOME/.jig/config.edn``` (where $HOME is your home directory). If a configuration file can't be found, a default will be used.
+A configuration specifies :
+
+* which components you want to include in your system
+* where to find these components (the Leiningen project) and
+* the configuration settings they will get
+
+Usually you've have one configuration file per project per environment (e.g. dev, uat, prod).
+
+By default, Jig looks for a ```config/config.edn``` file, but you can override this by placing a config file in ```$HOME/.jig/config.edn``` (where $HOME is your home directory). If a configuration file can't be found, a default will be used.
 
 A configuration is a map which usually contains a ```:jig/components``` key listing the
 components in a map (each key in the map is the component's label). You can get a good idea of the format by looking at the ```config/default.edn``` file.
@@ -505,14 +522,10 @@ specified, under which resources will be available.
    }
 ```
 
-## External projects
+## Projects
 
-Jig is self-hosting, so you can reload the code internal to Jig as per
-Stuart's usual reload procedure.
-
-However, it's more likely that you'll want to use Jig to develop one of
-your own projects. You can do this by specifying a ```:jig/project```
-entry which declares that the component lives in another project.
+You point Jig at your own projects by specifying a ```:jig/project```
+configuration entry which specifies the project containing the component you wish to include.
 
     :juxtweb/service {:jig/component pro.juxt.website.core/Component
                       :jig/dependencies [:juxtweb/web]
@@ -520,39 +533,9 @@ entry which declares that the component lives in another project.
                       :jig/project "../juxtweb/project.clj"
                     }
 
-One advantage with using external projects is that you can change the
-project.clj file(s) of your project(s) without requiring a JVM restart.
-
-A further advantage is that you don't have to modify Jig's
-```project.clj``` file to include dependencies you need in the projects
-it references, you only need to edit the main config file itself (which
-is filtered by .gitignore so that it doesn't get checked in).
-
-### A word on classloading
-
-An external project's classes are loaded in a separate classloader, one
-per project.
-
-However, this classloader will only load classes that are not on Jig's
-classpath. It will not load a different version of Clojure, nor does it
-provide any isolation between components and isn't intended for
-multi-tenanting of applications. Jig is not an application server, it
-merely provides this feature to allow the separation of the development
-of components into different Leiningen projects. You should consider the
-amalgamation of components in Jig as a single composite Clojure
-application.
-
-The Clojure runtime does not distinguish between namespaces that are
-loaded from different classloaders, and all namespaces will appear as
-usual in calls to ns-map, etc.. There is only one Clojure runtime in any
-given Jig instance.
-
-#### Classloader pinning
-
-Unless a project's classloader is explicity pinned, a fresh
-classloader will be created if the project's project.clj file is
-modified, and then all the classes will be reloaded. See below for more
-details about pinning classloaders.
+Leiningen dependencies that are added to a project during development
+are automatically can be added to the classpath, so you don't have to
+restart the JVM if you are simply adding a dependency to a project.
 
 ## Caveats
 
@@ -567,31 +550,6 @@ If that happens and there's a need to share components between jigs (for
 reasons of component portability) then it will make sense to promote the
 ```Lifecycle``` protocol (and maybe others) to a common library that
 different jigs can use.
-
-### Caveats with external projects
-
-Jig's support for external projects is very useful. However, there are
-some caveats to be aware of due to the introduction of multiple
-classloaders. Most if not all of these caveats will be ironed out over
-time.
-
-#### Resource loading
-
-The ```:jig/project``` mechanism loads external project namespaces in a
-separate classloader. When component lifecycle functions are called,
-this classloader is set as the thread's context classloader, so calls to
-```io/resource``` and others will work as expected. However, any code
-that executes outside of component lifecycle functions may not be able
-to reference resources.
-
-Normally, you shouldn't ever notice any difference between an
-application running standalone and one run within the Jig harness, but
-it's important to note the possibility and report any problems.
-
-Built-in plugins are specially coded to determine the correct
-classloader to set on the thread before calling into your code. For
-example, the web component wraps request threads in middleware which
-sets the project classloader on the thread.
 
 #### EDN data readers
 
@@ -614,98 +572,16 @@ following form :
                   'base64 datomic.codec/base-64-literal}}
        "my-data.edn)
 
-#### Classloader leaks
+### user.clj
 
-Some components will not be able to shutdown cleanly and the classloader
-may persist. Examples are components that spawn threads, create agents,
-bind thread-local vars, and so on.
-
-Datomic is a specific example due to the way it caches
-connections. Disable the project reloading by adding a
-```:jig/projects``` section in the config and setting the
-```:jig/classloader-pinned?``` to ```true```. This will pin the
-project's classloader to the project so that the project will not get a
-new classloader upon restart (projects are usually restarted if their
-```project.clj``` file changes, or if the Jig configuration changes).
-
-    {
-    :jig/projects
-    [{
-      :jig/project "../juxtweb/project.clj"
-      :jig/classloader-pinned? false
-      }
-     {
-      :jig/project "../accounting/project.clj"
-      :jig/classloader-pinned? true
-      ;; eg. extra classpath, source dirs, etc. here
-      }
-     ]
-     }
-
-It is expected that Clojure 1.6 will fix this issue ([CLJ-1125](http://dev.clojure.org/jira/browse/CLJ-1125)). Until then, if you have problems with components such as class linkage errors, protocol dispatch failures, ```.isInstance``` checks, then it recommended you disable Jig's project reloading capability. You will still be able to reload the code in external projects as before, but will lose the ability to make changes to a project, such as the project's library dependencies, without having to restart the JVM.
-
-More information can be found in these resources:
-
-* http://immutant.org/news/2012/05/18/runtime-isolation/
-* http://wiki.apache.org/tomcat/MemoryLeakProtection
-
-#### user.clj
-
-If an external project has a ```/user.clj``` file in one of its source
+If a project has a ```/user.clj``` file in one of its source
 directories, then it will be loaded on a reset and override Jig's user
 namespace. Jig will then stop working. The current workaround is to
 ensure such a file isn't visible to Jig, either by renaming it or by
 removing the source directory containing it in the project's
 ```project.clj``` file. It is hoped that future versions of Jig will
-avoid this issue by disabling the loading of such files by ```tools.namespace```.
-
-#### nREPL symbol resolution
-
-Certain evaluations (e.g. nrepl-jump in nrepl.el) from nREPL clients
-load resources to determine the code defining symbols. When they use the
-usual form of ```clojure.java.io/resource```, the default (Jig)
-classloader is used. Unsurprisingly, symbols declared in external
-projects are defined in namespaces that are not reachable from Jig's own
-classloader, but via the project classloaders it creates each external
-project.
-
-The solution to this issue has 3 parts. Firstly, a proxy classloader is
-created that delegates to each of the project classloaders, providing a
-union across the set of resources in the system. The classloader is
-parented by the default Jig classloader, so all Jig symbols are part of
-this union. (This part is already implemented on the master branch in
-```system.clj```, commit ```99c27```).
-
-Secondly, Jig inserts some custom nREPL middleware that sets the proxy
-classloader into the ```:context-classloader``` slot in the nREPL
-message. This is already implemented.
-
-Finally, the nREPL interruptible-eval middleware which evaluates the code sent
-by nREPL clients is modified to check for the existence of a value in
-this ```:context-classloader``` slot and set it as the context
-classloader on the evaluating thread. This has been implemented in a
-custom version of tools.nrepl available at
-```[malcolmsparks/tools.nrepl "0.2.3"]```. In order to use this you need
-apply the following patch to Leiningen 2.3.3 and rebuild it (or apply a
-similar fix to later versions of Leiningen). In the meantime, I am
-raising a pull request on tools.nrepl to get this work into the master
-branch so future versions of Leiningen will work without modification.
-
-```
-diff --git a/leiningen-core/src/leiningen/core/project.clj b/leiningen-core/src
-index 7bbca62..ac814f3 100755
---- a/leiningen-core/src/leiningen/core/project.clj
-+++ b/leiningen-core/src/leiningen/core/project.clj
-@@ -366,7 +366,7 @@
-                             {:displace true})
-                 :test-selectors {:default (with-meta '(constantly true)
-                                             {:displace true})}
--                :dependencies '[[org.clojure/tools.nrepl "0.2.3"
-+                :dependencies '[[malcolmsparks/tools.nrepl "0.2.3"
-                                  :exclusions [org.clojure/clojure]]
-                                 [clojure-complete "0.2.3"
-                                  :exclusions [org.clojure/clojure]]]
-```
+avoid this issue by disabling the loading of such files by
+```tools.namespace```.
 
 ## FAQ
 

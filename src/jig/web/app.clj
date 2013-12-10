@@ -38,24 +38,6 @@
    (fn [context]
      (assoc context :component config))))
 
-(definterceptorfn
-  wrap-possible-context-classloader
-  [cl]
-  (around
-   :wrap-possible-context-classloader
-   (fn [context]
-     (if cl
-       (let [ocl (.getContextClassLoader (Thread/currentThread))]
-         (.setContextClassLoader (Thread/currentThread) cl)
-         (assoc context
-           :old-context-loader ocl
-           :context-loader cl))
-       context))
-   (fn [context]
-     (when cl
-       (.setContextClassLoader (Thread/currentThread) (get context :old-context-loader)))
-     (dissoc context :context-loader :old-context-loader))))
-
 (defn add-routes
   "A convenience function to contribute Pedestal routes to an
   application within the System. The app name must be specified in the
@@ -65,6 +47,5 @@
              [(:jig.web/app-name config) :jig.web/routes]
              conj [(vec (concat
                          [(or (get-in config [:jig.web/context]) "/")
-                          ^:interceptors [(inject-component-config config)
-                                          (wrap-possible-context-classloader (some->> config :jig/project :classloader))]]
+                          ^:interceptors [(inject-component-config config)]]
                          routes))]))

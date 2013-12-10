@@ -23,9 +23,11 @@
    [cljs
     [closure :refer (build)]
     [env :refer (default-compiler-env)]]
-   [clojure.java.classpath :as classpath :refer (classpath)]
    [clojure.tools.namespace.find :as ns-find]
    [clojure.tools.namespace.file :as ns-file]
+   ;; TODO Do we really need this just for jar-file?
+   [clojure.java.classpath :as classpath]
+   ;; TODO Do we really need this just for some utility functions?
    [io.pedestal.app-tools.compile :as pedcompile]
    [cljs.closure :refer (Compilable dependency-order -compile)])
   (:import
@@ -38,25 +40,28 @@
       (deleteDir f))
     (.delete f)))
 
-;; Replacements for org.clojure/java.classpath:clojure.java.classpath - these ones take classloaders
+;; Replacements for org.clojure/java.classpath:clojure.java.classpath -
+;; these ones take explicit classpaths
 
 (defn classpath-directories
   "Returns a sequence of File objects for the directories on classpath."
-  [classloader]
-  (filter #(.isDirectory ^java.io.File %) (classpath classloader)))
+  [classpath]
+  (filter #(.isDirectory ^java.io.File %) classpath))
 
 (defn classpath-jarfiles
-  "Replacement for classpath/classpath-jarfiles, this one accepts a classloader."
-  [classloader]
-  (map #(java.util.jar.JarFile. ^java.io.File %) (filter classpath/jar-file? (classpath classloader))))
+  "Replacement for classpath/classpath-jarfiles, this one accepts a classpath."
+  [classpath]
+  (->> classpath
+       (filter classpath/jar-file?)
+       (map #(java.util.jar.JarFile. ^java.io.File %))))
 
 ;; Replacements for io.pedestal/pedestal.app-tools:io.pedestal.app-tools.compile
 
 (defn shared-files-in-jars
   "Return all Clojure files in jars on the classpath which are marked
   as being shared."
-  [classloader]
-  (for [jar (classpath-jarfiles classloader)
+  [classpath]
+  (for [jar (classpath-jarfiles classpath)
         file-name (ns-find/clojure-sources-in-jar jar)
         :when (pedcompile/ns-marked-as-shared? jar file-name)]
     {:js-file-name (pedcompile/rename-to-js file-name)
@@ -67,8 +72,8 @@
 (defn shared-files-in-dirs
   "Return all Clojure files in directories on the classpath which are
   marked as being shared."
-  [classloader]
-  (for [dir (classpath-directories classloader)
+  [classpath]
+  (for [dir (classpath-directories classpath)
         file (ns-find/find-clojure-sources-in-dir dir)
         :when (pedcompile/ns-marked-as-shared? file)]
     {:js-file-name (pedcompile/js-file-name dir file)
@@ -78,8 +83,8 @@
 
 (defn project-cljs-files
   "Return all ClojureScript files in directories on the classpath."
-  [classloader]
-  (for [dir (classpath-directories classloader)
+  [classpath]
+  (for [dir (classpath-directories classpath)
         file (file-seq dir)
         :when (pedcompile/cljs-file? file)]
     {:js-file-name (pedcompile/js-file-name dir file)
@@ -90,11 +95,12 @@
 (defn all-cljs-on-classpath
   "Return all files on the classpath which can be compiled to
   ClojureScript."
-  [classloader]
+  [classpath]
+  (infof "Finding all cljs on classpath: %s" classpath)
   (let [res
-        (concat (shared-files-in-jars classloader)
-                (shared-files-in-dirs classloader)
-                (project-cljs-files classloader))]
+        (concat (shared-files-in-jars classpath)
+                (shared-files-in-dirs classpath)
+                (project-cljs-files classpath))]
     (debugf "Files to compile: %s" (with-out-str (pprint res)))
     res))
 
@@ -105,6 +111,7 @@
   metadata tag on the ns. This seems to be a Pedestal convention,
   not (yet) a ClojureScript one."
   [sources options compiler-env]
+  (infof "Sources (%d): %s" (count sources) (reduce str (interpose "," sources)))
   (build (reify Compilable
            (-compile [_ options]
              ;; Not sure what this does yet, let's disable it
@@ -131,7 +138,7 @@
           (when (and (.exists od) (.isDirectory od))
             (deleteDir od))))
       (build-sources!
-       (all-cljs-on-classpath (-> config :jig/project :classloader))
+       (all-cljs-on-classpath (-> config :jig/project :classpath))
        (select-keys config [:output-dir :output-to :optimizations :pretty-print :source-map])
        (if (:clean-build config) (default-compiler-env) compiler-env))
       (assoc-in system compiler-env-path compiler-env)))
