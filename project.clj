@@ -51,7 +51,7 @@
                  ;; MQTT for messaging
                  [clojurewerkz/machine_head "1.0.0-beta4"]
                  ;; Pedestal integration needs java.classpath to find ^:shared namespaces
-                 [io.pedestal/pedestal.app-tools ~pedestal-version]
+                 [io.pedestal/pedestal.app-tools ~pedestal-version :exclusions [io.pedestal/pedestal.service]]
                  [org.clojure/java.classpath "0.2.0"]
                  ]
 
