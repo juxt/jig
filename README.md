@@ -312,14 +312,16 @@ Here's an example.
 You can write your own components by defining a type or record. At the
 very least it needs to implement the `jig.Lifecycle` protocol.
 
-    (:ns org.example.core
-      (:import (jig Lifecycle)))
+```clojure
+(:ns org.example.core
+  (:import (jig Lifecycle)))
 
-    (deftype Component [config]
-      Lifecycle
-      (init [_ system] system)
-      (start [_ system] system)
-      (stop [_ system] system))
+(deftype Component [config]
+  Lifecycle
+  (init [_ system] system)
+  (start [_ system] system)
+  (stop [_ system] system))
+```
 
 In Stuart's reloaded workflow, the `init` function is responsible
 for creating the System. In Jig's component model, the system map is
@@ -337,8 +339,10 @@ e.g. `config/config.clj`
 
 For example...
 
-    {:jig/components
-      {:hello-app {:jig/component org.example.core/Component}}}
+```clojure
+{:jig/components
+  {:hello-app {:jig/component org.example.core/Component}}}
+```
 
 Components will be instantiated with a single argument: the component's
 configuration value as specified in the config file. So if you want to
@@ -366,10 +370,12 @@ keys to other components in the configuration.
 
 For example, let's suppose component Y is dependent on component X.
 
-    {:jig/components
-      {"X" {:jig/component org.example.core/X}
-       "Y" {:jig/component org.example.core/Y
-            :jig/dependencies ["X"]}}}
+```clojure
+{:jig/components
+  {"X" {:jig/component org.example.core/X}
+   "Y" {:jig/component org.example.core/Y
+        :jig/dependencies ["X"]}}}
+```
 
 You can also view the component dependency graph from the REPL :-
 
@@ -452,16 +458,18 @@ to handler within the same application, but you can specify
 Look at the use of `url-for` in the example below. See how _easy_ it
 is to generate URLs to target other Pedestal handlers. Nice.
 
-    (defhandler my-index-page [request]
-      {:status 200
-       :headers {"Content-Type" "text/plain"}
-       :body "Hello World!})
+```clojure
+(defhandler my-index-page [request]
+  {:status 200
+   :headers {"Content-Type" "text/plain"}
+   :body "Hello World!})
 
-    (defbefore my-root-page [{:keys [url-for] :as context}]
-      (assoc context :response
-        (ring.util.response/redirect
-          ;; Look, no nasty hard-coded URLs!
-          (url-for ::my-index-page))))
+(defbefore my-root-page [{:keys [url-for] :as context}]
+  (assoc context :response
+    (ring.util.response/redirect
+      ;; Look, no nasty hard-coded URLs!
+      (url-for ::my-index-page))))
+```
 
 #### jig.web.app/Component
 
@@ -527,11 +535,13 @@ specified, under which resources will be available.
 You point Jig at your own projects by specifying a `:jig/project`
 configuration entry which specifies the project containing the component you wish to include.
 
-    :juxtweb/service {:jig/component pro.juxt.website.core/Component
-                      :jig/dependencies [:juxtweb/web]
-                      :jig.web/app-name :juxtweb/web
-                      :jig/project "../juxtweb/project.clj"
-                    }
+```clojure
+:juxtweb/service {:jig/component pro.juxt.website.core/Component
+                  :jig/dependencies [:juxtweb/web]
+                  :jig.web/app-name :juxtweb/web
+                  :jig/project "../juxtweb/project.clj"
+                }
+```
 
 Leiningen dependencies that are added to a project during development
 are automatically can be added to the classpath, so you don't have to
@@ -566,11 +576,13 @@ map.
 For example, when loading Datomic data from a file, you would use the
 following form :
 
-    (edn/read-string
-       {:readers {'db/id datomic.db/id-literal
-                  'db/fn datomic.function/construct
-                  'base64 datomic.codec/base-64-literal}}
-       "my-data.edn)
+```clojure
+(edn/read-string
+   {:readers {'db/id datomic.db/id-literal
+              'db/fn datomic.function/construct
+              'base64 datomic.codec/base-64-literal}}
+   "my-data.edn")
+```
 
 ### user.clj
 
