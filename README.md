@@ -229,6 +229,20 @@ your `$HOME/.emacs.d/init.el` to provide a shortcut.
 (global-set-key (kbd "C-c r") 'nrepl-reset)
 ```
 
+or, if you are using [cider]("http://github.com/clojure-emacs/cider"):
+
+```clojure
+(defun cider-repl-reset ()
+  (interactive)
+  (save-some-buffers)
+  (with-current-buffer (cider-current-repl-buffer)
+    (goto-char (point-max))
+    (insert "(user/reset)")
+    (cider-repl-return)))
+
+(global-set-key (kbd "C-c r") cider-repl-reset)
+```
+
 After re-evaluating (or restarting Emacs) you'll be able to reset the
 application using 'Control-c r'.
 
