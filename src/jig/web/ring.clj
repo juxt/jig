@@ -57,6 +57,6 @@
   (init [_ system]
     (if-let [handlers (::handlers system)]
       (assoc system ::handler (apply routes handlers))
-      (ex-info "Compojure won't initialise without handlers available. The Compojure component must depend on other components that supply handlers by conj'd (or concat'd) to ::handlers" config)))
+      (throw (ex-info "Compojure won't initialise without handlers available. The Compojure component must depend on other components that supply handlers by conj'd (or concat'd) to ::handlers" config))))
   (start [_ system] system)
   (stop [_ system] system))
