@@ -33,8 +33,8 @@ are applied, the latest binding of the function is used.
 
 In practice, however, there are some minor quirks that impair the
 dependability of the code reloading : adding a new library dependency,
-redeclaring a ```defmulti``` or Clojure protocol, stale state referenced
-in ```def```s and ```defonce```s are some examples. One of Jig's aims is
+redeclaring a `defmulti` or Clojure protocol, stale state referenced
+in `def`s and `defonce`s are some examples. One of Jig's aims is
 to handle these incidentals for you, letting you concentrate more fully
 on your programming.
 
@@ -69,7 +69,7 @@ Stuart describes the System Constructor which creates the initial
 _state_ of a system. Jig provides an implementation of the System
 Constructor that delegates the job of creating the system to components,
 each component having the same lifecycle interface as Stuart describes:
-```init```, ```start``` and ```stop```. The System is created by
+`init`, `start` and `stop`. The System is created by
 threading it through all the components.
 
 A reset stops and restarts all components. Components are initialized
@@ -140,8 +140,8 @@ Jig in your deployment. More details can be found below.
 
 Pedestal boasts bidirectional routes, so that URIs can be generated from
 route definitions rather than determined some other way. Jig provides a
-```url-for``` function in the Pedestal context, and defaults the
-```app-name``` and ```request``` to make it easy to generate paths that
+`url-for` function in the Pedestal context, and defaults the
+`app-name` and `request` to make it easy to generate paths that
 make sense in the context of the page on which the link is placed.
 
 ### Portable web applications
@@ -149,7 +149,7 @@ make sense in the context of the page on which the link is placed.
 It can be cost-effective for multiple web applications to share the same
 JVM. Jig allows you to host web applications under contextual URI
 prefixes. This is a feature made possible by the provision of the
-```url-for``` function, since 'portable' web applications can use this
+`url-for` function, since 'portable' web applications can use this
 to generate URIs for web links in their content, without resorting to
 hard-coding URI paths.
 
@@ -170,10 +170,10 @@ Jig components into their own sub-projects.
 
 ## Usage
 
-Normally you'll be used to creating with a project with ```lein new```,
+Normally you'll be used to creating with a project with `lein new`,
 cd'ing to the newly created directory, perhaps adding some plugins to
-its ```project.clj``` file, and running ```lein```. Working with Jig is
-different, in that you run ```lein``` from the Jig project directory and
+its `project.clj` file, and running `lein`. Working with Jig is
+different, in that you run `lein` from the Jig project directory and
 'point' the configuration at one (or more) of your existing Leiningen
 projects.
 
@@ -182,16 +182,16 @@ Clone the Jig repository as you would any other Clojure project.
     $ git clone https://github.com/juxt/jig
 
 Configure Jig by copying in a config file into the
-```config/config.edn```. You can skip this step if you want to see Jig
+`config/config.edn`. You can skip this step if you want to see Jig
 running in its default configuration which includes examples.
 
-If you're using Emacs, load up Jig's ```project.clj``` and
+If you're using Emacs, load up Jig's `project.clj` and
 
     M-x nrepl-jack-in
 
 (that's usually bound to 'Control-c, Meta-j')
 
-In the ```*nrepl*``` buffer that (eventually) appears, type
+In the `*nrepl*` buffer that (eventually) appears, type
 
     user> (go)
 
@@ -203,19 +203,19 @@ and then
 
     user> (go)
 
-Sync the application by calling ```reset```
+Sync the application by calling `reset`
 
     user> (reset)
 
 Resetting the application will cause namespaces to reload (thanks to
-Stuart's work in ```org.clojure/tools.namespace```) such that the
+Stuart's work in `org.clojure/tools.namespace`) such that the
 application will be back in sync with the code-base. This is the feature
 that makes development fast and interactive, and it's all thanks to
 Stuart's hard work.
 
-You should find yourself typing ```(reset)``` rather a lot, and soon
+You should find yourself typing `(reset)` rather a lot, and soon
 even that becomes burdensome. Here's some Emacs code you can paste into
-your ```$HOME/.emacs.d/init.el``` to provide a shortcut.
+your `$HOME/.emacs.d/init.el` to provide a shortcut.
 
 ```clojure
 (defun nrepl-reset ()
@@ -242,10 +242,10 @@ A configuration specifies :
 
 Usually you've have one configuration file per project per environment (e.g. dev, uat, prod).
 
-By default, Jig looks for a ```config/config.edn``` file, but you can override this by placing a config file in ```$HOME/.jig/config.edn``` (where $HOME is your home directory). If a configuration file can't be found, a default will be used.
+By default, Jig looks for a `config/config.edn` file, but you can override this by placing a config file in `$HOME/.jig/config.edn` (where $HOME is your home directory). If a configuration file can't be found, a default will be used.
 
-A configuration is a map which usually contains a ```:jig/components``` key listing the
-components in a map (each key in the map is the component's label). You can get a good idea of the format by looking at the ```config/default.edn``` file.
+A configuration is a map which usually contains a `:jig/components` key listing the
+components in a map (each key in the map is the component's label). You can get a good idea of the format by looking at the `config/default.edn` file.
 
 ### Includes
 
@@ -259,17 +259,17 @@ It's also possible to link to other configuration files, which are merged into a
 
 ### Formats
 
-While ```.edn``` files are preferred, you can use ```.clj``` if you want
+While `.edn` files are preferred, you can use `.clj` if you want
 to evaluate Clojure expressions, such as calculations.
 
-Important: To avoid injection attacks, never use the ```.clj``` suffix
+Important: To avoid injection attacks, never use the `.clj` suffix
 for configuration you don't entirely control, including user submitted
 configuration.
 
 ### Dealing with multiple diverging configurations
 
-A very useful trick is to use Clojure's ```#=``` reader macro in the
-```$HOME/.jig/config.clj``` (you can't use an ```.edn``` file for this
+A very useful trick is to use Clojure's `#=` reader macro in the
+`$HOME/.jig/config.clj` (you can't use an `.edn` file for this
 trick). A useful pattern is to load in the default configuration and
 make tweaks to it for the environment you're running Jig in. This helps
 to prevent a proliferation of diveraging configuration files, which is a
@@ -310,7 +310,7 @@ Here's an example.
 ## Components
 
 You can write your own components by defining a type or record. At the
-very least it needs to implement the ```jig.Lifecycle``` protocol.
+very least it needs to implement the `jig.Lifecycle` protocol.
 
     (:ns org.example.core
       (:import (jig Lifecycle)))
@@ -321,19 +321,19 @@ very least it needs to implement the ```jig.Lifecycle``` protocol.
       (start [_ system] system)
       (stop [_ system] system))
 
-In Stuart's reloaded workflow, the ```init``` function is responsible
+In Stuart's reloaded workflow, the `init` function is responsible
 for creating the System. In Jig's component model, the system map is
-threaded through each component's ```init``` function, giving it a
-chance to add stuff. Likewise for the ```start``` and ```stop```
+threaded through each component's `init` function, giving it a
+chance to add stuff. Likewise for the `start` and `stop`
 functions. The minimum you need to do is return the original system, for
 the next component in the chain.
 
 Once you have declared your component, you need to reference it in the
-config file ```config/config.edn```. Jig needs to know which components
+config file `config/config.edn`. Jig needs to know which components
 you want activated. If this file doesn't already exist, copy over the
-contents from ```config/sample.config.edn```. If you need to evaluate
-Clojure expressions in your config, use a ```.clj``` suffix,
-e.g. ```config/config.clj```
+contents from `config/sample.config.edn`. If you need to evaluate
+Clojure expressions in your config, use a `.clj` suffix,
+e.g. `config/config.clj`
 
 For example...
 
@@ -343,7 +343,7 @@ For example...
 Components will be instantiated with a single argument: the component's
 configuration value as specified in the config file. So if you want to
 pass configuration to your component, an easy option is to add it to the
-component's entry in the ```config/config.edn``` file.
+component's entry in the `config/config.edn` file.
 
 If you want to see the state of the system at any time, it's available from the REPL
 
@@ -361,7 +361,7 @@ Alternatively, you can be explicit.
 
 Sometimes a component will rely on the existence of
 another. Dependencies can be specified in the component configuration
-under the ```:jig/dependencies``` key, where the value is a vector of
+under the `:jig/dependencies` key, where the value is a vector of
 keys to other components in the configuration.
 
 For example, let's suppose component Y is dependent on component X.
@@ -381,7 +381,7 @@ You can also view the component dependency graph from the REPL :-
 
 There are some situations where you want state to survive across
 resets. Values that are stored in the system anywhere under the
-```:jig/safe``` branch will not be purged. In the vast majority of cases
+`:jig/safe` branch will not be purged. In the vast majority of cases
 you should prefer state to be reinitialised on a reset.
 
 ### Built-in components
@@ -420,7 +420,7 @@ system reset.
 #### jig.nrepl/Server
 
 Provides an nREPL server, useful if the system isn't started with
-```lein repl``` but an nREPL service is still desired.
+`lein repl` but an nREPL service is still desired.
 
 #### jig.web.firefox-reload/Component
 
@@ -444,12 +444,12 @@ pages and RESTful web applications.
 Asking the library to generate URLs for you, rather than hard-coding
 them in your application, reduces the risk of broken links and
 maintenance cost. Jig injects a useful function into the Pedestal
-context, under the ```:url-for``` key, that lets you generate URLs
+context, under the `:url-for` key, that lets you generate URLs
 relative to request you are processing. By default, URLs are generated
 to handler within the same application, but you can specify
-```:app-name``` to target other applications hosted in the same JVM.
+`:app-name` to target other applications hosted in the same JVM.
 
-Look at the use of ```url-for``` in the example below. See how _easy_ it
+Look at the use of `url-for` in the example below. See how _easy_ it
 is to generate URLs to target other Pedestal handlers. Nice.
 
     (defhandler my-index-page [request]
@@ -466,11 +466,11 @@ is to generate URLs to target other Pedestal handlers. Nice.
 #### jig.web.app/Component
 
 Provides a web application abstraction on top of
-```jig.web.server/Component```. Other components can add Pedestal routes
+`jig.web.server/Component`. Other components can add Pedestal routes
 to a web application component. These are then combined to form a
 complete Pedestal route table.
 
-Applications can share the same ```jig.web.server/Component```, allowing
+Applications can share the same `jig.web.server/Component`, allowing
 for 'virtual hosts'. Applications can specify a different host, scheme
 or be rooted at a sub-context. This are really useful for hosting
 different Clojure-powered websites on the same JVM.
@@ -495,9 +495,9 @@ accomplished with this component.
  }
 ```
 
-Setting ```:clean-build``` to true will cause the output directory to be
+Setting `:clean-build` to true will cause the output directory to be
 deleted on every reset, otherwise an incremental build will be
-performed. The compiler environment is stored under the ```:jig/safe```
+performed. The compiler environment is stored under the `:jig/safe`
 branch to make incremental builds possible. Incremental builds are a lot
 faster and are therefore enabled by default.
 
@@ -509,9 +509,9 @@ by adding multiple instances of this component to your configuration.
 
 Once the JavaScript and source-map files have been generated, it is
 often useful to be able to serve it from a web server. A minimum of two
-dependencies must be specified, one should be a ```jig.cljs/Builder```
+dependencies must be specified, one should be a `jig.cljs/Builder`
 component instance, the other should be the a
-```jig.web.app/Component``` component instance. A web context should be
+`jig.web.app/Component` component instance. A web context should be
 specified, under which resources will be available.
 
 ```clojure
@@ -524,7 +524,7 @@ specified, under which resources will be available.
 
 ## Projects
 
-You point Jig at your own projects by specifying a ```:jig/project```
+You point Jig at your own projects by specifying a `:jig/project`
 configuration entry which specifies the project containing the component you wish to include.
 
     :juxtweb/service {:jig/component pro.juxt.website.core/Component
@@ -548,7 +548,7 @@ contexts (either new projects, or forks of this one).
 
 If that happens and there's a need to share components between jigs (for
 reasons of component portability) then it will make sense to promote the
-```Lifecycle``` protocol (and maybe others) to a common library that
+`Lifecycle` protocol (and maybe others) to a common library that
 different jigs can use.
 
 #### EDN data readers
@@ -556,9 +556,9 @@ different jigs can use.
 If an external project depends on a third-party jar which isn't on Jig's
 own classpath, then it will not have been visible to Clojure when
 clojure.core is first loaded. This means that any data readers declared
-in ```/data_readers.clj``` will not work. If you use the
-```edn/read-string``` in these projects you cannot assume the
-```*data-readers*``` dynamic var will contain the data readers declared
+in `/data_readers.clj` will not work. If you use the
+`edn/read-string` in these projects you cannot assume the
+`*data-readers*` dynamic var will contain the data readers declared
 in the third-party jar. The workaround is to use the 2-arg form of
 edn/read edn/read-string and supply the readers explicitly in the option
 map.
@@ -574,14 +574,13 @@ following form :
 
 ### user.clj
 
-If a project has a ```/user.clj``` file in one of its source
+If a project has a `/user.clj` file in one of its source
 directories, then it will be loaded on a reset and override Jig's user
 namespace. Jig will then stop working. The current workaround is to
 ensure such a file isn't visible to Jig, either by renaming it or by
 removing the source directory containing it in the project's
-```project.clj``` file. It is hoped that future versions of Jig will
-avoid this issue by disabling the loading of such files by
-```tools.namespace```.
+`project.clj` file. It is hoped that future versions of Jig will
+avoid this issue by disabling the loading of such files by `tools.namespace`.
 
 ## FAQ
 
@@ -624,16 +623,16 @@ Up's functionality. Jig is better.
 
 ### Look at the system
 
-Don't forget the system is available in the REPL, as ```user/system```. That's useful for testing what functions are returning.
+Don't forget the system is available in the REPL, as `user/system`. That's useful for testing what functions are returning.
 
 You can check what's in the system by outputting it to the
-console. ```(keys user/system)``` is often useful if the system gets
+console. `(keys user/system)` is often useful if the system gets
 very large and you need to navigate it.
 
 ### Log files
 
 By default, Jig configures logback and logs are written to
-```$HOME/.jig/logs```. Events such as component init, startup and
+`$HOME/.jig/logs`. Events such as component init, startup and
 shutdown, and exceptions that occur during these phases, are written to
 here. When the REPL tells you to check the log files, this is where you
 should look.
@@ -653,7 +652,7 @@ that's normal behaviour.
 
 >  java.lang.IllegalArgumentException: No implementation of method: :init of protocol: #'jig/Lifecycle found for class
 
-Ensure you ```require``` jig before ```import```ing the ```jig/Lifecycle``` protocol.
+Ensure you `require` jig before `import`ing the `jig/Lifecycle` protocol.
 
 ## Console
 
@@ -661,7 +660,7 @@ By default, a console is provided at http://localhost:8001. This will be
 improved to allow you to browse auto-generated
 [Marginalia](http://fogus.github.io/marginalia/) and
 [codox](https://github.com/weavejester/codox) documentation, view your
-embedded ```TODO```s and ```FIXME```s, enable tracing on vars and run
+embedded `TODO`s and `FIXME`s, enable tracing on vars and run
 tests from the browser, as well as incorporating webhooks for triggering
 a reload remotely.
 
@@ -671,7 +670,7 @@ a reload remotely.
 
 Many people have asked for a demonstration of how to configure a simple
 Ring application. This is provided as a Sudoku example in the
-```examples/``` directory. It is incorporated in the default
+`examples/` directory. It is incorporated in the default
 configuration and the website is accessible at http://localhost:8091/sudoku.html
 
 ## Copyright and License
