@@ -83,7 +83,18 @@ helpful in avoiding repeated expensive analysis of project files"
      :project p
      :classpath cp
      :dirs (->> cp (filter (memfn isDirectory)))
-     :tracker (track/tracker)}))
+     :tracker (track/tracker)
+     ;; We add a special classloader entry to load resources that are
+     ;; limited to this classpath only, and cannot get resources from
+     ;; the system classloader. This classloader can be used by certain
+     ;; components to load resources with project-level isolation. An
+     ;; example can be found in the stencil extension (jig.web.stencil).
+     :classloader (java.net.URLClassLoader.
+                   (->> cp (map io/as-url) (into-array java.net.URL))
+                   ;; This parent classloader is required to block
+                   ;; delegation to parent classloaders higher up which
+                   ;; would be able to resolve the given resource.
+                   (proxy [ClassLoader] [nil] (getResource [_])))}))
 
 (defn announce-reload
   "Annouce on the REPL (or, rather, *out*) that a reload is happening"
