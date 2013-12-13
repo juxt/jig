@@ -49,6 +49,7 @@
            ["Components" nil]
            ["Docs" nil]
            ["Tasks" ::work-page]
+           ["Logs" nil]
            ["Testing" nil]
            ["Structure" nil]
            ["Stats" nil]
