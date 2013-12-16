@@ -27,6 +27,8 @@
                  [endophile "0.1.0"]
                  ;; Liberator for REST services
                  [liberator "0.9.0"]
+                 ;; Codox for documentation
+                 [codox/codox.core "0.6.6"]
                  ]
   :source-paths ["src" "../extensions/stencil/src"]
   )

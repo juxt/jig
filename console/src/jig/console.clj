@@ -21,7 +21,9 @@
    [jig.web
     [app :refer (add-routes)]
     [stencil :refer (get-template link-to-stencil-loader)]]
-   [io.pedestal.service.interceptor :as interceptor :refer (defbefore definterceptorfn before)]
+   [jig.console
+    [codox :as codox]]
+   [io.pedestal.service.interceptor :as interceptor :refer (defbefore definterceptorfn before defhandler)]
    [ring.util.response :as ring-resp]
    [ring.util.codec :as codec]
    [io.pedestal.service.http.body-params :as body-params]
@@ -37,8 +39,6 @@
     [util :refer (emit-element)]])
   (:import (jig Lifecycle)))
 
-;;(string/split ":accounts/service")
-
 (defn has-examples? [system]
   (not (empty? (:jig/examples system))))
 
@@ -47,7 +47,7 @@
           [["System" ::system]
            ["Config" nil]
            ["Components" nil]
-           ["Docs" nil]
+           ["Codox" ::codox-page]
            ["Tasks" ::work-page]
            ["Logs" nil]
            ["Testing" nil]
@@ -66,8 +66,18 @@
     :content (constantly content)
     :menu (for [[name link] (menu system)]
             {:listitem
-             (html [:li (when (= route-name link) {:class "active"})
-                    [:a {:href (if link (url-for link) "/")} name]])})}))
+             (html (cond
+                    (= name "Codox")
+                    [:li.dropdown
+                     [:a.dropdown-toggle {:href "#" :data-toggle "dropdown"} name [:b.caret]]
+                     [:ul {:class "dropdown-menu"}
+                      (for [proj (->> system :jig/projects (map :name))]
+                        [:li [:a {:href (url-for :jig.console.codox/codox-project-index-page
+                                                 :params {:project proj})} proj]]
+                        )]]
+                    :otherwise
+                    [:li (when (= route-name link) {:class "active"})
+                     [:a {:href (if link (url-for link) "/")} name]]))})}))
 
 (defn page-response [context content]
   (assoc context :response
@@ -89,11 +99,6 @@
           [:body {:padding (px 30)}]
           [:h2 {:margin-top (px 40)}]))
         (ring-resp/content-type "text/css"))))
-
-
-#_(take 10 (->> "README.md" slurp mp to-clj
-              (map emit-element)
-              ))
 
 (defbefore index-page [context]
   (page-response context (->> "README.md" slurp mp to-clj
@@ -291,6 +296,14 @@
           ["/index" ^:interceptors [bootstrap/html-body] {:get index-page}]
           ["/console" ^:interceptors [bootstrap/html-body] {:get admin-page}]
           ["/work" ^:interceptors [bootstrap/html-body] {:get work-page}]
+
+          ["/codox" ^:interceptors [bootstrap/html-body] {:get codox/codox-page}]
+          ["/codox/:project/js/page_effects.js" {:get codox/codox-page-effects}]
+          ["/codox/:project/js/jquery.min.js" {:get codox/codox-jquery}]
+          ["/codox/:project/css/default.css" {:get codox/codox-css}]
+          ["/codox/:project/index.html" ^:interceptors [bootstrap/html-body] {:get codox/codox-project-index-page}]
+          ["/codox/:project/:namespace" ^:interceptors [bootstrap/html-body] {:get codox/codox-project-namespace-page}]
+
           ["/system" {:any (create-system-handler config)}]
           ["/examples" ^:interceptors [bootstrap/html-body] {:get examples-page}]
           ["/reset" {:post post-reset}]
