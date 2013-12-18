@@ -12,16 +12,19 @@
 (ns snake.jig
   (:require
    jig
-   [snake.game :refer (handler)])
+   [snake.game :refer (handler)]
+   [snake.game-model :refer (create-game-state)])
   (:import (jig Lifecycle)))
 
 (deftype SnakeExample [config]
   Lifecycle
   (init [_ system]
     (println "Placing handler in system under " (:handler config))
-    (-> system
-        (assoc-in [(:handler config)] handler)
-        (update-in [:jig/examples] conj config)))
+    (let [game-state (create-game-state)]
+      (-> system
+          (assoc-in [(:jig/id config) :state] state)
+          (assoc-in [(:handler config)]  handler)
+          (update-in [:jig/examples] conj config))))
   (start [_ system]
     system)
   (stop [_ system] system))
