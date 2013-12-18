@@ -106,7 +106,7 @@
       (assoc-in [:clients user-id] (new-game))
       (assoc-in [:client-conns user-id] client-conn)))
 
-(defn create-state []
+(defn create-game-state []
   (doto (atom {:apples (new-apples)})
     (repeatedly-tick!)))
 
@@ -115,10 +115,3 @@
     (doto !state
       (swap! add-client user-id client-conn)
       (apply-commands! user-id client-conn))))
-
-#_(defn wire-up-model! []
-    (fn client-joined! [client-conn]
-    (let [user-id (str (java.util.UUID/randomUUID))]
-      (doto !game
-        (swap! add-client user-id client-conn)
-        (apply-commands! user-id client-conn)))))

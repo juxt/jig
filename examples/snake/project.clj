@@ -16,4 +16,9 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [hiccup "1.0.4"]
-                 [http-kit "2.1.13"]])
+                 [http-kit "2.1.13"]
+
+                 [prismatic/dommy "0.1.1"]
+                 [jarohen/chord "0.2.1"]]
+
+  :source-paths ["src" "src-cljs"])
