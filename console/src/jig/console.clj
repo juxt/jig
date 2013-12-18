@@ -48,7 +48,7 @@
 ;;           ["Config" nil]
 ;;           ["Components" nil]
            ["Codox" ::codox-page]
-           ["TODOs" ::todos-page]
+           [(str \T \O \D \O \s) ::todos-page]
 ;;           ["Logs" nil]
 ;;           ["Testing" nil]
 ;;           ["Structure" nil]
