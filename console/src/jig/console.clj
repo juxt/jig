@@ -48,7 +48,7 @@
 ;;           ["Config" nil]
 ;;           ["Components" nil]
            ["Codox" ::codox-page]
-           ["Tasks" ::work-page]
+           ["TODOs" ::todos-page]
 ;;           ["Logs" nil]
 ;;           ["Testing" nil]
 ;;           ["Structure" nil]
@@ -228,10 +228,10 @@
             (.isFile f) (find-todo-lines f)))))
 
 
-(defbefore work-page [{:keys [url-for system component] :as context}]
+(defbefore todos-page [{:keys [url-for system component] :as context}]
   (page-response context
                  (html
-                  [:h1 "Work"]
+                  [:h1 "TODOs"]
                   (for [project (-> system :jig/projects)]
                     (list
                      [:h2 (:name project)]
@@ -295,7 +295,7 @@
          ["/" {:get root-page}
           ["/index" ^:interceptors [bootstrap/html-body] {:get index-page}]
           ["/console" ^:interceptors [bootstrap/html-body] {:get admin-page}]
-          ["/work" ^:interceptors [bootstrap/html-body] {:get work-page}]
+          ["/todos" ^:interceptors [bootstrap/html-body] {:get todos-page}]
 
           ["/codox" ^:interceptors [bootstrap/html-body] {:get codox/codox-page}]
           ["/codox/:project/js/page_effects.js" {:get codox/codox-page-effects}]
