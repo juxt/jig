@@ -41,12 +41,28 @@
    :jig/dependencies [:compojure]
    :port 8091}
 
+
+  ;; Snake
+
+  :snake {:jig/component snake.jig/SnakeExample
+          :jig/project "examples/snake/project.clj"
+          :name "Snake"
+          :description "A Snake game demonstrating a ClojureScript
+          client and http-kit server communicating with websockets. Uses
+          chord."
+          :jig.example/uri "http://localhost:8092/snake.html"
+          }
+
+
   }
 
  :jig/projects
  [
   {
    :jig/project "examples/sudoku/project.clj"
+   }
+  {
+   :jig/project "examples/snake/project.clj"
    }
   ]
 
