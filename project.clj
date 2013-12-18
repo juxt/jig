@@ -53,6 +53,8 @@
                  ;; Pedestal integration needs java.classpath to find ^:shared namespaces
                  [io.pedestal/pedestal.app-tools ~pedestal-version :exclusions [io.pedestal/pedestal.service]]
                  [org.clojure/java.classpath "0.2.0"]
+                 ;; httpkit
+                 [http-kit "2.1.13"]
                  ]
 
   :profiles {:dev {:resource-paths ["config"]}}

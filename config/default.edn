@@ -50,9 +50,16 @@
           :description "A Snake game demonstrating a ClojureScript
           client and http-kit server communicating with websockets. Uses
           chord."
+          ;; We'll put the httpkit handler in the system under this key
+          :handler :snake-handler
           :jig.example/uri "http://localhost:8092/snake.html"
           }
 
+  :snake/server {:jig/component jig.httpkit/Server
+                 :jig/dependencies [:snake]
+                 ;; We'll take the httpkit handler from the system under this key
+                 :handler :snake-handler
+                 :port 8092}
 
   }
 
