@@ -231,7 +231,8 @@
 (defbefore todos-page [{:keys [url-for system component] :as context}]
   (page-response context
                  (html
-                  [:h1 "TODOs"]
+                  ;; string split so this doesn't end up as a TODO
+                  [:h1 (str \T \O \D \O \s)]
                   (for [project (-> system :jig/projects)]
                     (list
                      [:h2 (:name project)]
