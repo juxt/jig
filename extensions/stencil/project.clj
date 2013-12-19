@@ -12,11 +12,10 @@
 (load-file (str (System/getProperty "leiningen.original.pwd") "/../../project-header.clj"))
 
 (defproject jig/stencil (get-version)
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
+  :description "A Jig extension that provides templating based on Stencil"
+  :url "https://github.com/juxt/jig/tree/master/extensions/stencil"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [
                  [org.clojure/clojure "1.5.1"]
-                 ;; Stencil for templating
                  [stencil "0.3.2"]])
