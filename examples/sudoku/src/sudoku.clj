@@ -22,20 +22,41 @@
    jig)
   (:import (jig Lifecycle)))
 
-(defn hinto [var hint]
+(defn hinto
+  "Unifies a logical variable with a hint (a hint is a non blank square
+  in the starting grid). Blank squares are represented by 0 so fail the
+  pos? check and therefore succeed."
+  [var hint]
   (if (pos? hint)
     (== var hint)
     succeed))
 
-(defn solve [puzzle]
-  (first
+(defn solve
+  "Solve a Sudoku puzzle. The given puzzle must be represented as a
+  sequence of 9 sequences, each representing a single row (left-to-right
+  across the grid). Each row contains 9 numbers denoting the hints,
+  blanks are represented by zero. The algorithm uses core.logic,
+  starting with 81 dynamically created lvars (logic variables), upon
+  which logic relations are applied, constraining the possible
+  solutions. Since we know that Sudoku can only have one solution, we
+  only ask for one solution in the results (and take the first one).
+
+  Acknowledgment: This algorithm has been adapted from the example in
+  the core.logic test suite."
+  [puzzle]
+  (first ; return the first (and only) solution
    (let [vars (repeatedly 81 lvar)]
      (run 1 [q]
           (== q vars)
+          ;; Every lvar must be in the range 1 to 9 (inclusive)
           (everyg #(fd/in % (apply fd/domain (range 1 10))) vars)
-          (everyg (partial apply hinto) (map vector vars puzzle))
+          ;; lvars match their corresponding non-zero hints in the starting grid
+          (everyg (partial apply hinto) (map vector vars (apply concat puzzle)))
+          ;; Every lvar in a row must be distinct
           (everyg fd/distinct (partition 9 vars))
+          ;; Every lvar in a column must be distinct
           (everyg fd/distinct (apply map vector (partition 9 vars)))
+          ;; Every lvar in a square must be distinct
           (everyg fd/distinct (->> vars (partition 3) (partition 3)
                                    (apply interleave) (partition 3)
                                    (map (partial apply concat))))))))
@@ -66,7 +87,7 @@
           [:h3 "Puzzle"]
 
           [:table
-           (for [row (partition 9 puzzle)]
+           (for [row puzzle]
              [:tr
               (for [el row]
                 [:td

@@ -20,9 +20,7 @@
   Lifecycle
   (init [_ system] system)
   (start [_ system]
-    (println "Getting handler in system under " (:handler config))
     (let [handler (get-in system [(:handler config)])
-          _ (println "handler is " handler)
           server (run-server handler {:port (:port config)})]
       (assoc-in system [(:jig/id config) :server] server)))
   (stop [_ system]

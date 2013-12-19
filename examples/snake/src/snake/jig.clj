@@ -19,7 +19,6 @@
 (deftype SnakeExample [config]
   Lifecycle
   (init [_ system]
-    (println "Placing handler in system under " (:handler config))
     (let [!state (create-game-state)]
       (-> system
           (assoc-in [(:jig/id config) :state] !state)
