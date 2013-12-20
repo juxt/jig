@@ -239,7 +239,7 @@
                      (let [paths (->> project :project :source-paths (map (comp (memfn getCanonicalFile) io/file)))
                            todos (mapcat todo-finder paths)]
                        (list
-                        [:p (format "%d remaining tasks" (count todos))]
+                        [:p (format "%d remaining %ss" (count todos) (str \T \O \D \O))]
                         [:ul
                          (for [{:keys [file line todo]} todos]
                            [:div
