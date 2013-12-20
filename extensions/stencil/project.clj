@@ -16,6 +16,4 @@
   :url "https://github.com/juxt/jig/tree/master/extensions/stencil"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [
-                 [org.clojure/clojure "1.5.1"]
-                 [stencil "0.3.2"]])
+  :dependencies [[stencil "0.3.2"]])
