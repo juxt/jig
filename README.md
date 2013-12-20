@@ -682,13 +682,19 @@ Ensure you `require` jig before `import`ing the `jig/Lifecycle` protocol.
 
 ## Console
 
-By default, a console is provided at http://localhost:8001. This will be
-improved to allow you to browse auto-generated
-[Marginalia](http://fogus.github.io/marginalia/) and
-[codox](https://github.com/weavejester/codox) documentation, view your
-embedded `TODO`s and `FIXME`s, enable tracing on vars and run
-tests from the browser, as well as incorporating webhooks for triggering
-a reload remotely.
+By default, a console is provided at http://localhost:8001.
+
+Currently this supports the following (limited) functionality:
+
+* This README
+* A system map browser
+* Dynamically served [Codox](https://github.com/weavejester/codox) API documentation
+* A list of TODOs
+* Triggering a reload
+
+Security advisory: Since this console allows remote reloads, ensure that
+you disable this console if you are intending to run production
+applications on Jig, or secure access to whatever port you run it on.
 
 ## Examples
 
