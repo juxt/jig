@@ -13,14 +13,16 @@
   (:require
    jig
    [sudoku :refer (handler)]
-   [jig.web.ring :refer (add-handler)])
+   [jig.ring :refer (add-ring-handler)]
+   [jig.console.example :refer (add-example)])
   (:import (jig Lifecycle)))
 
 (deftype Website [config]
   Lifecycle
   (init [_ system]
     (-> system
-        (add-handler handler config)
-        (update-in [:jig/examples] conj config)))
+        (add-ring-handler handler config)
+        (add-example config)
+        ))
   (start [_ system] system)
   (stop [_ system] system))

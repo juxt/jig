@@ -30,6 +30,10 @@
           (when (.getParentFile dir)
             (recur (.getParentFile dir)))))))
 
+(defn bump-version [tag]
+  (let [[[_ stem lst]] (re-seq #"(.*\..*)(\d+)" tag)]
+    (join [stem (inc (read-string lst)) "-" "SNAPSHOT"])))
+
 ;; We don't want to keep having to 'bump' the version when we are
 ;; sitting on a more capable versioning system: git.
 (defn get-version []
@@ -50,5 +54,5 @@
                     (not (unstaged-changes git-dir))
                     (not (uncommitted-changes git-dir)))
                  tag
-                 (let [[[_ stem lst]] (re-seq #"(.*\.)(.*)" tag)]
-                   (join [stem (inc (read-string lst)) "-" "SNAPSHOT"]))))))))))
+                 (bump-version tag)
+                 ))))))))

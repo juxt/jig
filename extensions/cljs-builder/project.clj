@@ -11,9 +11,9 @@
 
 (load-file "project-header.clj")
 
-(defproject jig/stencil (get-version)
-  :description "A Jig extension that provides templating based on Stencil"
-  :url "https://github.com/juxt/jig/tree/master/extensions/stencil"
+(defproject jig/cljs-builder (get-version)
+  :description "A Jig extension that provides ClojureScript compilation support"
+  :url "https://github.com/juxt/jig/tree/master/extensions/cljs-builder"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[stencil "0.3.2"]])
+  :dependencies [[org.clojure/clojurescript "0.0-2138"]])

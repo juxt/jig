@@ -9,19 +9,22 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(load-file (str (when-let [pwd (System/getProperty "leiningen.original.pwd")]
-                  (str pwd "/"))
-                "project-header.clj"))
-
-(def pedestal-version "0.2.2")
+(load-file "project-header.clj")
 
 (defproject jig (get-version)
   :description "A jig for developing systems using component composition. Based on Stuart Sierra's 'reloaded' workflow."
   :url "https://juxt.pro/jig"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
+
+  :plugins [[lein-sub "0.2.3"]]
+
+  :sub ["extensions/bidi"
+        "extensions/cljs-builder"
+        "extensions/http-kit"
+        "extensions/stencil"]
+
   :dependencies [[org.clojure/clojure "1.5.1"]
-                 [org.clojure/clojurescript "0.0-2030"]
                  ;; core.async
                  [org.clojure/core.async "0.1.256.0-1bf8cf-alpha"]
                  ;; Leiningen
@@ -36,23 +39,18 @@
                  [org.slf4j/log4j-over-slf4j "1.7.2"]
                  ;; Graph algorithms for dependency graphs
                  [jkkramer/loom "0.2.0"]
-                 [io.pedestal/pedestal.service ~pedestal-version]
-                 ;; (with jetty)
-                 [io.pedestal/pedestal.jetty "0.1.10"]
                  ;; JMX
-                 [org.clojure/java.jmx "0.2.0"]
+;;                 [org.clojure/java.jmx "0.2.0"]
                  ;; nREPL
                  [org.clojure/tools.nrepl "0.2.3"]
                  ;; Tools namespace
                  [org.clojure/tools.namespace "0.2.4"]
                  ;; Back, by popular demand, Ring!
-                 [ring "1.2.0"]
-                 [compojure "1.1.5"]
+                 ;;[ring "1.2.0"]
+                 ;;[compojure "1.1.5"]
                  ;; MQTT for messaging
                  [clojurewerkz/machine_head "1.0.0-beta4"]
-                 ;; Pedestal integration needs java.classpath to find ^:shared namespaces
-                 [io.pedestal/pedestal.app-tools ~pedestal-version
-                  :exclusions [io.pedestal/pedestal.service]]
+
                  [org.clojure/java.classpath "0.2.0"]
                  ]
 

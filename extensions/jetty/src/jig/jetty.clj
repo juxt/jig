@@ -9,27 +9,33 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns jig.http-kit
+(ns jig.jetty
   (:require
    jig
-   [clojure.java.io :refer (resource)]
-   [clojure.tools.logging :refer (debugf)]
-   [clojure.core.cache :as cache]
-   [clojure.tools.logging :refer :all]
-   [org.httpkit.server :refer (run-server)])
+   [ring.adapter.jetty :refer (run-jetty)]
+   )
   (:import (jig Lifecycle)))
+
+(defn wrap-system
+  "Add the system map to the request so it's available to Ring handlers."
+  [h system]
+  (fn [req]
+    (h (assoc req :jig/system system))))
 
 (deftype Server [config]
   Lifecycle
   (init [_ system] system)
   (start [_ system]
     (if-let [handler (some (comp :jig.ring/handler system) (:jig/dependencies config))]
-      (let [server (run-server handler {:port (:port config)})]
-        (assoc-in system [(:jig/id config) :server] server))
-      system))
+      (assoc-in system
+                [(:jig/id config) :server]
+                (-> handler
+                    (wrap-system system)
+                    (run-jetty (merge {:port 8080 :join? false} config))))
+      (throw
+       (ex-info "Jetty won't start because ::handler missing, one of its dependencies should add it"
+                config))))
   (stop [_ system]
     (when-let [server (get-in system [(:jig/id config) :server])]
-      ;; Stop the server by calling the function
-      (infof "Stopping http-kit server")
-      (server))
+      (.stop server))
     (dissoc system (:jig/id config))))

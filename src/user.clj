@@ -23,7 +23,6 @@ be included in a production build of the application."
   (:require
    [clojure.java.io :as io]
    [clojure.java.javadoc :refer (javadoc)]
-   [clojure.java.jmx :as jmx]
    [clojure.pprint :refer (pprint)]
    [clojure.reflect :refer (reflect)]
    [clojure.repl :refer (apropos dir doc find-doc pst source)]
@@ -33,9 +32,7 @@ be included in a production build of the application."
    [clojure.test :as test]
    [loom.io :refer (view)]
    [clojure.tools.namespace.repl :refer (refresh refresh-all)]
-   [jig.system :as system]
-   jig.jmx)
-  (:import (jig.jmx CustomMBean)))
+   [jig.system :as system]))
 
 (def system
   "A Var containing an object representing the application under
@@ -91,7 +88,9 @@ be included in a production build of the application."
          (map #(first (keep get-config-map %))
               [
                ;; Pick the Jig built-ins first so that they can overridden later
-               [(io/resource "console.edn")]
+               ;; The console is added by default.
+               [(io/file "console/config.clj")
+                ]
 
                ;; Pick one from this list
                [(io/file (System/getProperty "user.home") ".jig/config.edn")
@@ -127,8 +126,14 @@ be included in a production build of the application."
 (defn go
   "Initializes and starts the system running."
   []
-  (init)
-  (start)
+  (try
+    (init)
+    (start)
+    (catch Throwable e
+      (println e)
+      (.printStackTrace e)
+      )
+    )
   :ready)
 
 ;; TODO See https://github.com/juxt/jig/issues/3

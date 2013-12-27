@@ -9,7 +9,7 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns jig.web.stencil
+(ns jig.stencil
   (:refer-clojure :exclude (load))
   (:require
    jig
@@ -94,7 +94,7 @@
        system
        (assoc-in
         [(:jig/id config)
-         :jig/stencil-loader]
+         ::loader]
         (let [dynamic-template-store (atom {})
               parsed-template-cache (atom (cache/lru-cache-factory {}))]
           (fn
@@ -108,21 +108,18 @@
   (start [_ system] system)
   (stop [_ system] system))
 
-(defn get-template [system component template-name]
-  (let [f (get-in system [(:jig/id component) :jig/stencil-loader])]
-    (if f
+(defn get-template
+  "A component that wants to be able to call this must define a ::loader
+  entry in its configuration which contains the id of the component
+  providing the stencil loader (a component of type StencilLoader)"
+  [system component template-name]
+  (throw (ex-info "Deprecated, please see console.clj and binding :template-loader to request"))
+  (if-let [id (::loader component)]
+    (if-let [f (get-in system [id ::loader])]
       (f template-name)
       (throw (ex-info
-              (format "No stencil loader for component: %s" (:jig/id component))
-              {:id (:jig/id component)})))))
-
-(defn link-to-stencil-loader
-  "There can be multiple stencil caches in a given system. Therefore we
-  have to ensure that we specify, in the component that wants to use
-  stencil caches, which stencil loader we want to use. We do that by
-  specifying a :jig/stencil-loader key pointing to the key of the
-  component that provides the StencilLoader."
-  [system config]
-  (assoc-in system
-            [(:jig/id config) :jig/stencil-loader]
-            (get-in system [(:jig/stencil-loader config) :jig/stencil-loader])))
+              (format "No stencil loader for component: %s" id)
+              {:id id})))
+    (throw (ex-info
+            (format "Component %s doesn't contain a %s key in its configuration" (:jig/id component) ::loader)
+            {:jig/id component}))))

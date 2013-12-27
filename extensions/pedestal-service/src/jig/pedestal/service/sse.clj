@@ -9,10 +9,10 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns jig.web.sse
+(ns jig.pedestal.service.sse
   (:require
    [io.pedestal.service.http.sse :as sse]
-   [jig.web.app :refer (add-routes)]
+   [jig.pedestal.service.vhost :refer (add-routes)]
    [clojure.core
     [async :refer (alts!!)]]
    [clojure.tools

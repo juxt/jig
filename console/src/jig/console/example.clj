@@ -9,11 +9,9 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(load-file "project-header.clj")
+(ns jig.console.example)
 
-(defproject jig/stencil (get-version)
-  :description "A Jig extension that provides templating based on Stencil"
-  :url "https://github.com/juxt/jig/tree/master/extensions/stencil"
-  :license {:name "Eclipse Public License"
-            :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[stencil "0.3.2"]])
+(defn add-example
+  "Register an example."
+  [system config]
+  (update-in system [:jig/examples] conj config))

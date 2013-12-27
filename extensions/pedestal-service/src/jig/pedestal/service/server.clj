@@ -9,7 +9,7 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns jig.web.server
+(ns jig.pedestal.service.server
   (:require
    jig
    [clojure.pprint :refer (pprint)]

@@ -11,9 +11,17 @@
 
 (load-file "project-header.clj")
 
-(defproject jig/stencil (get-version)
-  :description "A Jig extension that provides templating based on Stencil"
-  :url "https://github.com/juxt/jig/tree/master/extensions/stencil"
+(def version (get-version))
+
+(defproject jig.console/codox version
+  :description "FIXME: write description"
+  :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[stencil "0.3.2"]])
+
+  :dependencies
+  [
+   ;; Codox for documentation
+   [codox/codox.core "0.6.6"]
+   ]
+  )

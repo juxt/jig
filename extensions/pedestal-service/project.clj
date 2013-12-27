@@ -9,11 +9,12 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(load-file "project-header.clj")
+(load-file (str (System/getProperty "leiningen.original.pwd") "/../../project-header.clj"))
 
-(defproject jig/stencil (get-version)
-  :description "A Jig extension that provides templating based on Stencil"
-  :url "https://github.com/juxt/jig/tree/master/extensions/stencil"
+(defproject jig/pedestal-service (get-version)
+  :description "A Jig extension that provides support for Pedestal services"
+  :url "https://github.com/juxt/jig/tree/master/extensions/pedestal-service"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[stencil "0.3.2"]])
+  :dependencies [[io.pedestal/pedestal.jetty "0.2.2"]
+                 [io.pedestal/pedestal.service "0.2.2"]])

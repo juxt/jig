@@ -11,9 +11,9 @@
 
 (load-file "project-header.clj")
 
-(defproject jig/stencil (get-version)
-  :description "A Jig extension that provides templating based on Stencil"
-  :url "https://github.com/juxt/jig/tree/master/extensions/stencil"
+(defproject jig/bidi (get-version)
+  :description "A Jig extension that provides support for URI routing using bidi"
+  :url "https://github.com/juxt/jig/tree/master/extensions/bidi"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[stencil "0.3.2"]])
+  :dependencies [[bidi "1.8.0"]])

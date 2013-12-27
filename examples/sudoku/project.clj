@@ -17,4 +17,23 @@
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [org.clojure/core.logic "0.8.4"]
                  [hiccup "1.0.4"]
-                 [garden "1.1.4"]])
+                 [garden "1.1.4"]
+
+                 ;; TODO Replace these with dependencies on the Jig components
+                 ;; jig/ring
+                 [ring/ring-core "1.2.1"]
+                 ;; jig/compojure
+                 [compojure "1.1.5"]
+                 ;; jig/jetty
+                 [ring/ring-jetty-adapter "1.2.1" :exclusions [javax.servlet/servlet-api org.eclipse.jetty.orbit/javax.servlet]]
+
+                 ;;[ring/ring-jetty-adapter "1.2.1" :exclusions [javax.servlet/servlet-api]]
+                 ;;[javax.servlet/servlet-api "2.5"]
+                 ]
+
+  :source-paths ["src"
+                 "../../extensions/ring/src"
+                 "../../extensions/compojure/src"
+                 "../../extensions/jetty/src"]
+
+)

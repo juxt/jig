@@ -12,8 +12,6 @@
 (ns sudoku
   (:refer-clojure :exclude [==])
   (:require
-   [jig.web
-    [app :refer (add-routes)]]
    [compojure.core :refer (routes defroutes GET)]
    [clojure.core.logic :refer :all]
    [clojure.core.logic.fd :as fd]

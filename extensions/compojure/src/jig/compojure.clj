@@ -14,11 +14,21 @@
    jig
    [compojure.core :refer (routes)]
    [compojure.route :refer (files)]
+   [jig.ring :refer (add-ring-handler)]
    [clojure.tools.logging :refer :all])
   (:import (jig Lifecycle)))
 
+#_(deftype Compojure [config]
+  Lifecycle
+  (init [_ system]
+    (if-let [handlers (::handlers system)]
+      (assoc system ::handler (apply routes handlers))
+      (throw (ex-info "Compojure won't initialise without handlers available. The Compojure component must depend on other components that supply handlers by conj'd (or concat'd) to ::handlers" config))))
+  (start [_ system] system)
+  (stop [_ system] system))
+
 ;; This Jig component iterates across its dependencies. For every
-;; dependency D, it checks for [D :jig.compojure/routes], and forms a
+;; dependency D, it checks for [D :jig.ring/handlers], and forms a
 ;; handler, which is places in its :jig.ring/handler entry. This can be
 ;; picked up by any dependant Ring-compatible servers, such as Jetty,
 ;; http-kit or application servers.
@@ -32,7 +42,7 @@
   (init [_ system]
     (->> system
          ((apply juxt (:jig/dependencies config))) ; all dependencies
-         (mapcat ::routes)            ; get the compojure routes of each
+         (mapcat :jig.ring/handlers)  ; get the compojure routes of each
          log-routes
          (apply routes)               ; combine into a single handler
          ;; and associate under the component's :jig.ring/handler key
@@ -58,14 +68,14 @@
 
       ;; Assert not multiple builders
       (when (> (count builders) 1)
-              (throw (ex-info (format "%s cannot depend on (or serve) more than one builder"
-                                      (:jig/id config)) {})))
+        (throw (ex-info (format "%s cannot depend on (or serve) more than one builder"
+                                (:jig/id config)) {})))
 
-      (update-in system
-                 [(:jig/id config) :jig.compojure/routes]
-                 conj (files "/js" {:root (:output-dir (first builders))
-                                    :mime-types {"cljs" "text/plain"
-                                                 "map" "application/javascript"}}))))
+      (add-ring-handler system
+                        (files "/js" {:root (:output-dir (first builders))
+                                      :mime-types {"cljs" "text/plain"
+                                                   "map" "application/javascript"}})
+                        config)))
 
   (start [_ system] system)
   (stop [_ system] system))

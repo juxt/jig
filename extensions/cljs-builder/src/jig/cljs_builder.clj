@@ -9,17 +9,13 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(ns jig.cljs
+(ns jig.cljs-builder
   (:require
    jig
-   [jig.web.app :refer (add-routes)]
    [clojure.java.io :refer (file)]
    [clojure.tools
     [logging :refer :all]]
    [clojure.pprint :refer (pprint)]
-   [io.pedestal.service.interceptor :as interceptor :refer (definterceptorfn)]
-   [ring.util.response :as ring-resp]
-   [ring.util.codec :as codec]
    [cljs
     [closure :refer (build)]
     [env :refer (default-compiler-env)]]
@@ -28,7 +24,7 @@
    ;; TODO Do we really need this just for jar-file?
    [clojure.java.classpath :as classpath]
    ;; TODO Do we really need this just for some utility functions?
-   [io.pedestal.app-tools.compile :as pedcompile]
+   [jig.cljs.shared :as shared]
    [cljs.closure :refer (Compilable dependency-order -compile)])
   (:import
    (jig Lifecycle)))
@@ -63,8 +59,8 @@
   [classpath]
   (for [jar (classpath-jarfiles classpath)
         file-name (ns-find/clojure-sources-in-jar jar)
-        :when (pedcompile/ns-marked-as-shared? jar file-name)]
-    {:js-file-name (pedcompile/rename-to-js file-name)
+        :when (shared/ns-marked-as-shared? jar file-name)]
+    {:js-file-name (shared/rename-to-js file-name)
      :tag :cljs-shared-lib
      :compile? true
      :source (java.net.URL. (str "jar:file:" (.getName jar) "!/" file-name))}))
@@ -75,8 +71,8 @@
   [classpath]
   (for [dir (classpath-directories classpath)
         file (ns-find/find-clojure-sources-in-dir dir)
-        :when (pedcompile/ns-marked-as-shared? file)]
-    {:js-file-name (pedcompile/js-file-name dir file)
+        :when (shared/ns-marked-as-shared? file)]
+    {:js-file-name (shared/js-file-name dir file)
      :tag :cljs-shared
      :compile? true
      :source file}))
@@ -86,8 +82,8 @@
   [classpath]
   (for [dir (classpath-directories classpath)
         file (file-seq dir)
-        :when (pedcompile/cljs-file? file)]
-    {:js-file-name (pedcompile/js-file-name dir file)
+        :when (shared/cljs-file? file)]
+    {:js-file-name (shared/js-file-name dir file)
      :tag :cljs
      :compile? true
      :source file}))
@@ -142,32 +138,6 @@
        (select-keys config [:output-dir :output-to :optimizations :pretty-print :source-map])
        (if (:clean-build config) (default-compiler-env) compiler-env))
       (assoc-in system compiler-env-path compiler-env)))
-  (start [_ system]
-    system)
-  (stop [_ system]
-    system))
-
-(definterceptorfn static
-  [root-path & [opts]]
-  (interceptor/handler
-   ::cljs-static
-   (fn [req]
-     (ring-resp/file-response
-      (codec/url-decode (get-in req [:path-params :path]))
-      {:root root-path, :index-files? true, :allow-symlinks? false}))))
-
-(deftype FileServer [config]
-  Lifecycle
-  (init [_ system]
-    (let [deps (select-keys (-> system :jig/config :jig/components) (:jig/dependencies config))
-          ;; This should be a common pattern, find a dependency that matches
-          app (first (filter (fn [[k v]] (= 'jig.web.app/Component (:jig/component v))) deps))
-          builder (first (filter (fn [[k v]] (= 'jig.cljs/Builder (:jig/component v))) deps))]
-      (add-routes
-       system
-       (assoc config :jig.web/app-name (first app))
-       [["/*path" {:get (static (:output-dir (second builder)))}]])))
-
   (start [_ system]
     system)
   (stop [_ system]
