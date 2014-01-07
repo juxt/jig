@@ -23,31 +23,21 @@
   [[org.clojure/clojure "1.5.1"]
    ;; Hiccup
    [hiccup "1.0.4"]
-   ;; CSS for examples
-   [garden "0.1.0-beta6"]
-   ;; Markdown
+   ;; Markdown for converting README.md
    [endophile "0.1.0"]
+   ;; CSS
+   [garden "0.1.0-beta6"]
+
    ;; Ring for responses
    ;; excluding tools.reader for now because it's out of date (clojurescript needs a newer one)
-   [ring/ring-core "1.2.1" :exclusions [org.clojure/tools.reader]]
+   #_[ring/ring-core "1.2.1" :exclusions [org.clojure/tools.reader]]
    ;; here's the newer one
-   [org.clojure/tools.reader "0.8.1"]
+   #_[org.clojure/tools.reader "0.8.1"]
 
    [jig/stencil ~version]
    [jig/bidi ~version]
    [jig/http-kit ~version]
 
-   ;; Until Jig components can be used
-   #_[stencil "0.3.2"]
-   #_[bidi "1.8.0"]
-   #_[org.clojure/core.match "0.2.0"] ; needed by bidi src, because we don't have the transitive dependency when we depend on src
-   #_[http-kit "2.1.13"]
    ]
 
-  #_:source-paths
-  #_["src"
-   "../extensions/stencil/src"
-   "../extensions/bidi/src"
-   "../extensions/http-kit/src"
-   ]
   )
