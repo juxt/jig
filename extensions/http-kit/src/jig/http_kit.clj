@@ -14,7 +14,6 @@
    jig
    [clojure.java.io :refer (resource)]
    [clojure.tools.logging :refer (debugf)]
-   [clojure.core.cache :as cache]
    [clojure.tools.logging :refer :all]
    [org.httpkit.server :refer (run-server)])
   (:import (jig Lifecycle)))

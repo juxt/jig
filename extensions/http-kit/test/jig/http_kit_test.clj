@@ -9,14 +9,12 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(load-file "project-header.clj")
+(ns jig.http-kit-test
+  (:require
+   jig
+   [clojure.test :refer :all]
+   [jig.http-kit :refer :all])
+  (:import (jig.http_kit Server)))
 
-(def version (get-version))
-
-(defproject jig/http-kit version
-  :description "A Jig extension that provides support for http-kit channels"
-  :url "https://github.com/juxt/jig/tree/master/extensions/http-kit"
-  :license {:name "Eclipse Public License"
-            :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[jig ~version]
-                 [http-kit "2.1.13"]])
+(deftest test-startup
+  (Server. {}))
