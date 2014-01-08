@@ -9,15 +9,11 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(load-file (str (System/getProperty "leiningen.original.pwd") "/../../project-header.clj"))
+(load-file "project-header.clj")
 
 (defproject jig/jetty (get-version)
   :description "A Jig extension that provides support for Jetty"
   :url "https://github.com/juxt/jig/tree/master/extensions/jetty"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [
-                 [ring/ring-jetty-adapter "1.2.1" ]
-                 ;;[org.eclipse.jetty/jetty-server "7.6.8.v20121106"]
-                 ;; :exclusions [javax.servlet/servlet-api]
-                 ])
+  :dependencies [[ring/ring-jetty-adapter "1.2.1" ]])

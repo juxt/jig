@@ -25,7 +25,6 @@
   "Register a Ring handler against the given component. The benefit of
   using this function is that the config is added to the incoming
   request (via Ring middleware)"
-  [system handler config]
+  [system config handler]
   (update-in system [(:jig/id config) :jig.ring/handlers]
-             conj (-> handler
-                      (wrap-config config))))
+             conj (wrap-config handler config)))

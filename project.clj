@@ -27,23 +27,41 @@
   ;; Jig comes with a library of optional pre-built ready-to-go Jig
   ;; components that are available for projects to make use of.
 
-  :sub ["extensions/bidi"
-        "extensions/cljs-builder"
-        "extensions/http-kit"
-        "extensions/stencil"]
+  :sub [
+        "extensions/bidi" ; URI routing library
+        "extensions/cljs-builder" ; ClojureScript compilation
+        "extensions/compojure" ; URI routing library
+        "extensions/http-kit" ; HTTP server (with client library)
+        "extensions/jetty" ; HTTP server
+        "extensions/ring" ; Ring utilities
+        "extensions/stencil" ; Templating library
+        ]
+
+  :exclusions
+  [
+   ;; tools.reader comes in through Ring, but older versions are incompatible with
+   ;; newer releases of ClojureScript.
+   org.clojure/tools.reader
+   ]
 
   :dependencies
   [[org.clojure/clojure "1.5.1"]
-   ;; Leiningen
-   [leiningen-core "2.3.2" :exclusions [org.clojure/tools.nrepl]]
-   ;; Logging
-   [org.clojure/tools.logging "0.2.6"]
-   ;; Graph algorithms for dependency graphs
-   [jkkramer/loom "0.2.0"]
-   ;; Tools namespace
+   ;; tools.namespace is what provides the foundation for the reset functionality
    [org.clojure/tools.namespace "0.2.4"]
-   ]
+   ;; leiningen-core helps us find the classpath for projects referenced in the configuration files
+   [leiningen-core "2.3.2" :exclusions [org.clojure/tools.nrepl]]
+   ;; tools.logging provides our logging API...
+   [org.clojure/tools.logging "0.2.6"]
+   ;; ... which uses logback as the logging back-end
+   [ch.qos.logback/logback-classic "1.0.7" :exclusions [org.slf4j/slf4j-api]]
+   [org.slf4j/jul-to-slf4j "1.7.2"]
+   [org.slf4j/jcl-over-slf4j "1.7.2"]
+   [org.slf4j/log4j-over-slf4j "1.7.2"]
 
+   ;; Graph algorithms for dependency graphs
+   [jkkramer/loom "0.2.0"]]
+
+  ;; Dev logging configuration and default config that loads the examples
   :profiles {:dev {:resource-paths ["config"]}}
 
   :repl-options {:prompt (fn [ns] (str "Jig " ns "> "))

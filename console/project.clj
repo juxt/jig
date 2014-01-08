@@ -28,11 +28,17 @@
    ;; CSS
    [garden "0.1.0-beta6"]
 
-   ;; Ring for responses
-   ;; excluding tools.reader for now because it's out of date (clojurescript needs a newer one)
-   #_[ring/ring-core "1.2.1" :exclusions [org.clojure/tools.reader]]
-   ;; here's the newer one
-   #_[org.clojure/tools.reader "0.8.1"]
+   ;; Ring for responses.  We MUST first load an up-to-date
+   ;; tools.reader, ring-core 1.2.1 relies on a 0.7.x version which
+   ;; isn't compatible with clojurescript. This is the error revealing
+   ;; the incompatibility -
+   ;;
+   ;; Unable to resolve var: reader/*alias-map* in this context,
+   ;; compiling:(cljs/analyzer.clj:1498:11)>
+   ;;
+   ;; When ring-core 1.2.2 is available, remove the explicit dependency on tools.reader
+   [org.clojure/tools.reader "0.8.1"]
+   [ring/ring-core "1.2.1"]
 
    [jig/stencil ~version]
    [jig/bidi ~version]

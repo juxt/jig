@@ -1,14 +1,10 @@
 {
  :jig/components
  {
-  ;; ----------------------------------------------------------------
-  ;; Examples
-
-
   ;; Sudoku - demonstrating the support for good old Ring/Compojure
 
-  :sudoku
-  {:jig/component sudoku.jig/Website
+  :examples.sudoku
+  {:jig/component sudoku/Website
    :jig/project "examples/sudoku/project.clj"
    :name "Sudoku"
    :description "A difficult Sudoku grid solved using core.logic. Renders the grid using Hiccup and serves it via Ring."
@@ -30,15 +26,15 @@
   ;; Compojure (for it's handler), while Compojure depends on handlers
   ;; provided by other components.
 
-  :sudoku/compojure
+  :examples.sudoku/routing
   {:jig/component jig.compojure/HandlerComposer
    :jig/project "examples/sudoku/project.clj"
-   :jig/dependencies [:sudoku]}
+   :jig/dependencies [:examples.sudoku]}
 
-  :sudoku/jetty
+  :examples.sudoku/webserver
   {:jig/component jig.jetty/Server
    :jig/project "examples/sudoku/project.clj"
-   :jig/dependencies [:sudoku/compojure]
+   :jig/dependencies [:examples.sudoku/routing]
    :port 8091}
 
   }

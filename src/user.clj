@@ -89,14 +89,18 @@ be included in a production build of the application."
               [
                ;; Pick the Jig built-ins first so that they can overridden later
                ;; The console is added by default.
-               [(io/file "console/config.clj")]
+               [(io/file "console/config.clj")
+                ]
 
                ;; Pick one from this list
                [(io/file (System/getProperty "user.home") ".jig/config.edn")
                 (io/file (System/getProperty "user.home") ".jig/config.clj")
                 (io/resource "config.edn")
                 (io/resource "config.clj")
-                (io/resource "default.edn")
+
+                ;; If none is found, we run the examples, to make a nicer
+                ;; 'out-of-the-box' experience.
+                (io/resource "examples.clj")
                 ]
 
                ;; Etc.

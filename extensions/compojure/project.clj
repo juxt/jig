@@ -9,7 +9,7 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
-(load-file (str (System/getProperty "leiningen.original.pwd") "/../../project-header.clj"))
+(load-file "project-header.clj")
 
 (defproject jig/compojure (get-version)
   :description "A Jig extension that provides support for Compojure routing"

@@ -9,9 +9,13 @@
 ;;
 ;; You must not remove this notice, or any other, from this software.
 
+(load-file "project-header.clj")
+
+(def jig-version (get-version))
+
 (defproject sudoku "0.1.0-SNAPSHOT"
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
+  :description "An example to demonstrate a simple jig running a website with Jetty and Compojure routing."
+  :url "https://github.com/juxt/jig/tree/master/examples/sudoku"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.5.1"]
@@ -19,21 +23,9 @@
                  [hiccup "1.0.4"]
                  [garden "1.1.4"]
 
-                 ;; TODO Replace these with dependencies on the Jig components
-                 ;; jig/ring
-                 [ring/ring-core "1.2.1"]
-                 ;; jig/compojure
-                 [compojure "1.1.5"]
-                 ;; jig/jetty
-                 [ring/ring-jetty-adapter "1.2.1" :exclusions [javax.servlet/servlet-api org.eclipse.jetty.orbit/javax.servlet]]
-
-                 ;;[ring/ring-jetty-adapter "1.2.1" :exclusions [javax.servlet/servlet-api]]
-                 ;;[javax.servlet/servlet-api "2.5"]
-                 ]
-
-  :source-paths ["src"
-                 "../../extensions/ring/src"
-                 "../../extensions/compojure/src"
-                 "../../extensions/jetty/src"]
-
-)
+                 ;; These are pre-built optional components that come
+                 ;; with Jig. Some projects include many Jig components,
+                 ;; others have none.
+                 [jig/ring ~jig-version]
+                 [jig/compojure ~jig-version]
+                 [jig/jetty ~jig-version]])

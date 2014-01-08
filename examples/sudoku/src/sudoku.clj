@@ -11,13 +11,18 @@
 
 (ns sudoku
   (:refer-clojure :exclude [==])
+
   (:require
-   [compojure.core :refer (routes defroutes GET)]
    [clojure.core.logic :refer :all]
    [clojure.core.logic.fd :as fd]
    [hiccup.core :refer (html)]
    [clojure.pprint :refer (pprint)]
-   jig)
+   jig
+   [jig.console.example :refer (add-example)]
+   [jig.ring :refer (add-ring-handler)]
+
+   [compojure.core :refer (routes defroutes GET)])
+
   (:import (jig Lifecycle)))
 
 (defn hinto
@@ -111,3 +116,14 @@
               [:p "Config is" ]
               [:pre (with-out-str (pprint (:jig/config req)))]
               ]])}))
+
+
+(deftype Website [config]
+  Lifecycle
+  (init [_ system]
+    (-> system
+        (add-example config)
+        (add-ring-handler config handler)
+        ))
+  (start [_ system] system)
+  (stop [_ system] system))
