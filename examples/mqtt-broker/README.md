@@ -69,7 +69,7 @@ Jig user> (go)
 Use mosquitto to publish some test messages.
 
 ```
-mosquitto_pub -h localhost -t "/foo" -m "message"
+mosquitto_pub -t "/foo" -m "message"
 ```
 
 You should see messages printed out on Jig's standard out.
