@@ -705,6 +705,12 @@ Ring application. This is provided as a Sudoku example in the
 `examples/` directory. It is incorporated in the default
 configuration and the website is accessible at http://localhost:8091/sudoku.html
 
+### MQTT broker
+
+This is a network service built on Netty. It shows how easy it is to use
+Java service libraries directly using only Clojure and Jig. Please refer
+to the README.md in examples/mqtt-broker for more details.
+
 ## Copyright and License
 
 Copyright © 2013 JUXT. All rights reserved.

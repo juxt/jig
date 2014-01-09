@@ -33,6 +33,8 @@
         "extensions/compojure" ; URI routing library
         "extensions/http-kit" ; HTTP server (with client library)
         "extensions/jetty" ; HTTP server
+        "extensions/netty" ; Generic network server library
+        "extensions/netty-mqtt" ; MQTT support for Netty
         "extensions/ring" ; Ring utilities
         "extensions/stencil" ; Templating library
         ]
