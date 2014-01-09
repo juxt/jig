@@ -15,10 +15,5 @@
   (for [dep (:jig/dependencies config)]
     (-> system :jig/config :jig/components dep (assoc :jig/id dep))))
 
-;;(get-dependencies user/system {:jig/dependencies [:console/stencil-loader]})
-
-#_(satisfying-dependency user/system {:jig/dependencies [:console/stencil-loader]}
-                       'jig.stencil/StencilLoader)
-
 (defn satisfying-dependency [system config type]
   (first (filter #(= type (:jig/component %)) (get-dependencies system config))))
