@@ -17,18 +17,22 @@
   (:import
    (jig Lifecycle)))
 
-(defn make-buffer [{:keys [buffer size]}]
-  (case buffer
-    :sliding (async/sliding-buffer size)
-    :dropping (async/dropping-buffer size)
-    (async/buffer size)))
+(defn make-channel [{:keys [buffer size]}]
+  (cond
+   buffer (chan
+           (case buffer
+             :sliding (async/sliding-buffer size)
+             :dropping (async/dropping-buffer size)
+             (throw (ex-info "Unknown buffer type" {:buffer buffer}))))
+   size (chan (async/buffer size))
+   :otherwise (chan)))
 
 (deftype Channel [config]
   Lifecycle
   (init [_ system]
     (assoc-in system
               [(:jig/id config) :channel]
-              (chan (make-buffer config))))
+              (make-channel config)))
   (start [_ system] system)
   (stop [_ system]
     (close! (get-in system [(:jig/id config) :channel]))
