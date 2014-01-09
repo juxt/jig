@@ -123,8 +123,8 @@
     ["/jig.css" css-page]
     ["/bootstrap/" (->Resources {:prefix "assets/bootstrap/"})]
     ["/console/resources/assets/" (->Resources {:prefix "assets/"})]
-    ["" (->ResourcesMaybe {:prefix "assets/"})] ; TODO inefficient route, do better
     ["/debug" (fn [req] {:status 200 :body (with-out-str (pprint (-> req :jig.bidi/routes)))})]
+    ["" (->ResourcesMaybe {:prefix "assets/"})]
     ]])
 
 (defn wrap-template-loader [template-loader]
