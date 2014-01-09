@@ -12,16 +12,16 @@
 (ns jig.async
   (:require
    jig
-   [clojure.core.async :refer (chan >!! close! sliding-buffer dropping-buffer buffer)]
+   [clojure.core.async :refer (chan >!! close!) :as async]
    [clojure.tools.logging :refer :all])
   (:import
    (jig Lifecycle)))
 
 (defn make-buffer [{:keys [buffer size]}]
   (case buffer
-    :sliding (sliding-buffer size)
-    :dropping (dropping-buffer size)
-    (buffer size)))
+    :sliding (async/sliding-buffer size)
+    :dropping (async/dropping-buffer size)
+    (async/buffer size)))
 
 (deftype Channel [config]
   Lifecycle
