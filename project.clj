@@ -70,5 +70,6 @@
   :repl-options {:prompt (fn [ns] (str "Jig " ns "> "))
                  :welcome (user/welcome)}
 
-  :aliases {"deploy-all" ["do" "deploy" "clojars," "sub" "deploy" "clojars"]}
+  :aliases {"deploy-all" ["do" "deploy" "clojars," "sub" "deploy" "clojars"]
+            "install-all" ["do" "install," "sub" "install"]}
   )
