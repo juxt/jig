@@ -25,8 +25,8 @@
            (map vector
                 (repeat (str f))
                 (map inc (range))
-                (map #(second (re-find (re-pattern (str \T \O \D \O \: \? \\ \s \* \( \. \* \))) %)) (line-seq (io/reader f)))
-                ))))
+                (map #(second (re-find (re-pattern (str \T \O \D \O \: "?\\s*([^\r\n\"]*)")) %))
+                     (line-seq (io/reader f)))))))
 
 (defn extract-snippet [file line]
   (apply str
@@ -42,25 +42,33 @@
 
 (defn todos-page [request]
   (ring-resp/response
-   (html
-    ;; string split so this doesn't end up as a TO-DO
-    [:h1 (str \T \O \D \O \s)]
-    (for [project (-> request :jig/system :jig/projects)]
-      (list
-       [:h2 (:name project)]
-       (let [paths (->> project :project :source-paths (map (comp (memfn getCanonicalFile) io/file)))
-             todos (mapcat todo-finder paths)]
-         (list
-          [:p (format "%d remaining %ss" (count todos) (str \T \O \D \O))]
-          [:ul
-           (for [{:keys [file line todo]} todos]
-             [:div
-              [:h4 (str \T \O \D \O)]
-              [:p [:i todo]]
-              [:p "File: " file]
-              [:p "Line: " line]
-              [:pre (extract-snippet file line)]
-              ])])))))))
+             (html
+              ;; string split so this doesn't end up as a TO-DO
+              [:h1 (str \T \O \D \O \s)]
+              [:p (format "Developers sometimes think of things to do while coding which, for whatever reason, isn't possible to do at the time. A common convention is to label the comment with '%s'." (str \T \O \D \O))]
+
+              (let [content (for [project (-> request :jig/system :jig/projects)]
+                              (let [paths (->> project :project :source-paths (map (comp (memfn getCanonicalFile) io/file)))
+                                    todos (mapcat todo-finder paths)]
+                                (when (pos? (count todos))
+                                  [:div
+                                   [:h2 (:name project)]
+                                   [:p (format "%d remaining %ss" (count todos) (str \T \O \D \O))]
+                                   [:ul
+                                    (for [{:keys [file line todo]} todos]
+                                      [:div
+                                       [:h4 [:i todo]]
+                                       [:p "File: " file]
+                                       [:p "Line: " line]
+                                       [:pre (extract-snippet file line)]
+                                       ])]])))]
+                (if (empty? content)
+                  [:p (format "There are currently no %s. That's good. But if you add them, they'll appear here."
+                              (str \T \O \D \O \s))]
+                  (list
+                   [:p (format "Here are the %s items that remain in the code-base." (str \T \O \D \O))]
+                   content)))
+              )))
 
 (deftype JigComponent [config]
   Lifecycle
