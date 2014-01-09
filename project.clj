@@ -28,6 +28,7 @@
   ;; components that are available for projects to make use of.
 
   :sub [
+        "extensions/async" ; core.async channels that can be shared by dependants
         "extensions/bidi" ; URI routing library
         "extensions/cljs-builder" ; ClojureScript compilation
         "extensions/compojure" ; URI routing library
