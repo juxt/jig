@@ -7,6 +7,10 @@
 Jig is an __application harness__ providing a beautifully interactive
 development experience __for Clojure projects__.
 
+## Releases and Dependency Information
+
+[![Current Version](https://clojars.org/jig/latest-version.svg)](https://clojars.org/jig)
+
 ## Features and benefits
 
 Feedback is at the heart of all agile software development processes. If
@@ -161,10 +165,6 @@ of times that you have to reboot the JVM. Only components that are
 successfully initialized are started, and only those that are
 successfully started are stopped. Any failures are indicated in the
 REPL, with full details and stack traces written to the log file..
-
-## Releases and Dependency Information
-
-See the git tags for the latest release.
 
 ## Usage
 
