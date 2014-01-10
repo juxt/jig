@@ -164,9 +164,7 @@ REPL, with full details and stack traces written to the log file..
 
 ## Releases and Dependency Information
 
-The stable version is 1.3.0. There is a 1.4.0-RC1 release which should
-be considered experimental since it is piloting an approach to placing
-Jig components into their own sub-projects.
+See the git tags for the latest release.
 
 ## Usage
 
@@ -538,10 +536,10 @@ specified, under which resources will be available.
 
 ```clojure
 :cljs-server
-  {:jig/component jig.cljs/FileServer
-   :jig/dependencies [:cljs-builder :web]
-   :jig.web/context "/js"
-   }
+{:jig/component jig.cljs/FileServer
+ :jig/dependencies [:cljs-builder :web]
+ :jig.web/context "/js"
+}
 ```
 
 ## Projects
@@ -553,13 +551,37 @@ configuration entry which specifies the project containing the component you wis
 :juxtweb/service {:jig/component pro.juxt.website.core/Component
                   :jig/dependencies [:juxtweb/web]
                   :jig.web/app-name :juxtweb/web
-                  :jig/project "../juxtweb/project.clj"
-                }
+                  :jig/project "../juxtweb/project.clj"}
 ```
 
 Leiningen dependencies that are added to a project during development
 are automatically can be added to the classpath, so you don't have to
 restart the JVM if you are simply adding a dependency to a project.
+
+## Deployment
+
+You can run Jig in production the same way as you run in development. If
+you are using a single project which depends on Jig (or at least one Jig
+extension) you can uberjar your project.
+
+### uberjar
+
+Create a main.clj or other similar namespace with the following content.
+
+```clojure
+(ns main (:gen-class))
+
+(defn -main [& args] (user/go))
+```
+
+In your project.clj, add the following
+
+```clojure
+:main main :aot [main]
+```
+
+Or see https://github.com/mastodonc/kixi.hecuba for an example of a
+project which deploys this way.
 
 ## Caveats
 
@@ -626,12 +648,15 @@ Jig is trying to provide you with a better development experience, while
 nudging you towards a modular architecture that will help you when your
 system grows to a certain size.
 
-> Where can I find an example of a real project using Jig?
+> Where can I find examples of projects using Jig?
 
-JUXT Accounting is a full application that is developed with Jig. Find more details here: https://github.com/juxt/juxt-accounting
+[Mastodon C](http://www.mastodonc.com/)'s
+[Hecuba](https://github.com/mastodonc/kixi.hecuba) project uses Jig for
+development, deploying using lein uberjar.
 
-JUXT's [website](https://juxt.pro) also uses Jig, for both development and deployment.
-https://github.com/juxt/juxtweb
+[JUXT Accounting](https://github.com/juxt/juxt-accounting) is a full application that is developed with Jig 1.0.x.
+
+JUXT's [website](https://juxt.pro) also [uses](https://github.com/juxt/juxtweb) Jig 1.0.x, for both development and deployment.
 
 > What's the relationship between Jig and Up?
 
