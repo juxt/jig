@@ -93,10 +93,11 @@ be included in a production build of the application."
                 ]
 
                ;; Pick one from this list
-               [(io/file (System/getProperty "user.home") ".jig/config.edn")
-                (io/file (System/getProperty "user.home") ".jig/config.clj")
-                (io/resource "config.edn")
+               [(io/resource "config.edn")
                 (io/resource "config.clj")
+
+                (io/file (System/getProperty "user.home") ".jig/config.edn")
+                (io/file (System/getProperty "user.home") ".jig/config.clj")
 
                 ;; If none is found, we run the examples, to make a nicer
                 ;; 'out-of-the-box' experience.
