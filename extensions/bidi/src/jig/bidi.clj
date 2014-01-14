@@ -87,7 +87,8 @@
   (init [_ system]
     (let [builder (satisfying-dependency system config 'jig.cljs-builder/Builder)]
       (add-bidi-routes system config [(or (:jig.web/context config) "")
-                                      (->Files {:dir (:output-dir builder)})])))
+                                      (->Files {:dir (:output-dir builder)
+                                                :mime-types {"map" "application/javascript"}})])))
 
   (start [_ system] system)
   (stop [_ system] system))
