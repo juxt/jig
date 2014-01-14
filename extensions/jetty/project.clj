@@ -11,9 +11,12 @@
 
 (load-file "project-header.clj")
 
-(defproject jig/jetty (get-version)
+(def version (get-version))
+
+(defproject jig/jetty version
   :description "A Jig extension that provides support for Jetty"
   :url "https://github.com/juxt/jig/tree/master/extensions/jetty"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[ring/ring-jetty-adapter "1.2.1" ]])
+  :dependencies [[jig/protocols ~version]
+                 [ring/ring-jetty-adapter "1.2.1" ]])

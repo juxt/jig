@@ -11,9 +11,12 @@
 
 (load-file "project-header.clj")
 
-(defproject jig/ring (get-version)
+(def version (get-version))
+
+(defproject jig/ring version
   :description "A Jig extension that provides support for Ring-based web applications"
   :url "https://github.com/juxt/jig/tree/master/extensions/ring"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[ring/ring-core "1.2.1"]])
+  :dependencies [[jig/protocols ~version]
+                 [ring/ring-core "1.2.1"]])

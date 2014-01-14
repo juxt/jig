@@ -11,9 +11,12 @@
 
 (load-file "project-header.clj")
 
-(defproject jig/netty-mqtt (get-version)
+(def version (get-version))
+
+(defproject jig/netty-mqtt version
   :description "A Jig extension that provides support for MQTT in Netty"
   :url "https://github.com/juxt/jig/tree/master/extensions/netty-mqtt"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[juxt/clj-mqtt "0.4.1-alpha"]])
+  :dependencies [[jig/protocols ~version]
+                 [juxt/clj-mqtt "0.4.1-alpha"]])

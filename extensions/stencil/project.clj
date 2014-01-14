@@ -11,9 +11,12 @@
 
 (load-file "project-header.clj")
 
-(defproject jig/stencil (get-version)
+(def version (get-version))
+
+(defproject jig/stencil version
   :description "A Jig extension that provides templating based on Stencil"
   :url "https://github.com/juxt/jig/tree/master/extensions/stencil"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[stencil "0.3.2"]])
+  :dependencies [[jig/protocols ~version]
+                 [stencil "0.3.2"]])

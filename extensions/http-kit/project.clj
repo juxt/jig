@@ -18,5 +18,5 @@
   :url "https://github.com/juxt/jig/tree/master/extensions/http-kit"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[jig ~version]
+  :dependencies [[jig/protocols ~version]
                  [http-kit "2.1.13"]])

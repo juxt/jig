@@ -11,7 +11,9 @@
 
 (load-file "project-header.clj")
 
-(defproject jig (get-version)
+(def version (get-version))
+
+(defproject jig version
 
   :description "A jig for developing systems using component composition. Based on Stuart Sierra's 'reloaded' workflow."
 
@@ -28,6 +30,8 @@
   ;; components that are available for projects to make use of.
 
   :sub [
+        "protocols"
+
         "extensions/async" ; core.async channels that can be shared by dependants
         "extensions/bidi" ; URI routing library
         "extensions/cljs-builder" ; ClojureScript compilation
@@ -48,7 +52,10 @@
    ]
 
   :dependencies
-  [[org.clojure/clojure "1.5.1"]
+  [
+   [jig/protocols ~version]
+
+   [org.clojure/clojure "1.5.1"]
    ;; tools.namespace is what provides the foundation for the reset functionality
    [org.clojure/tools.namespace "0.2.4"]
    ;; leiningen-core helps us find the classpath for projects referenced in the configuration files
@@ -64,12 +71,9 @@
    ;; Graph algorithms for dependency graphs
    [jkkramer/loom "0.2.0"]]
 
-  ;; Dev logging configuration and default config that loads the examples
-  :profiles {:dev {:resource-paths ["config"]}}
-
   :repl-options {:prompt (fn [ns] (str "Jig " ns "> "))
                  :welcome (user/welcome)}
 
-  :aliases {"deploy-all" ["do" "deploy" "clojars," "sub" "deploy" "clojars"]
-            "install-all" ["do" "install," "sub" "install"]}
+  :aliases {"deploy-all" ["do" "sub" "deploy" "clojars," "deploy" "clojars"]
+            "install-all" ["do" "sub" "install," "install"]}
   )

@@ -1,4 +1,4 @@
-;; Copyright © 2013 - 2014, JUXT LTD. All Rights Reserved.
+;; Copyright © 2014, JUXT LTD. All Rights Reserved.
 ;;
 ;; The use and distribution terms for this software are covered by the
 ;; Eclipse Public License 1.0 (http://opensource.org/licenses/eclipse-1.0.php)
@@ -11,12 +11,9 @@
 
 (load-file "project-header.clj")
 
-(def version (get-version))
-
-(defproject jig/async version
-  :description "A Jig extension that provides support for core.async"
-  :url "https://github.com/juxt/jig/tree/master/extensions/netty"
+(defproject jig/protocols (get-version)
+  :description "A Jig extension that provides the Lifecycle protocol."
+  :url "https://github.com/juxt/jig/tree/master/protocols"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[jig/protocols ~version]
-                 [org.clojure/core.async "0.1.267.0-0d7780-alpha"]])
+  :dependencies [])

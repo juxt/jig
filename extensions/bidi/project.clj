@@ -11,9 +11,12 @@
 
 (load-file "project-header.clj")
 
-(defproject jig/bidi (get-version)
+(def version (get-version))
+
+(defproject jig/bidi version
   :description "A Jig extension that provides support for URI routing using bidi"
   :url "https://github.com/juxt/jig/tree/master/extensions/bidi"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[bidi "1.8.0"]])
+  :dependencies [[jig/protocols ~version]
+                 [bidi "1.8.0"]])

@@ -101,7 +101,7 @@ be included in a production build of the application."
 
                 ;; If none is found, we run the examples, to make a nicer
                 ;; 'out-of-the-box' experience.
-                (io/resource "examples.clj")
+                ;;(io/resource "examples.clj")
                 ]
 
                ;; Etc.

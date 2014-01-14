@@ -11,9 +11,12 @@
 
 (load-file "project-header.clj")
 
-(defproject jig/netty (get-version)
+(def version (get-version))
+
+(defproject jig/netty version
   :description "A Jig extension that provides support for Netty"
   :url "https://github.com/juxt/jig/tree/master/extensions/netty"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[io.netty/netty-all "5.0.0.Alpha1"]])
+  :dependencies [[jig/protocols ~version]
+                 [io.netty/netty-all "5.0.0.Alpha1"]])

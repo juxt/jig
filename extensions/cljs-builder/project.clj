@@ -11,10 +11,13 @@
 
 (load-file "project-header.clj")
 
-(defproject jig/cljs-builder (get-version)
+(def version (get-version))
+
+(defproject jig/cljs-builder version
   :description "A Jig extension that provides ClojureScript compilation support"
   :url "https://github.com/juxt/jig/tree/master/extensions/cljs-builder"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojurescript "0.0-2138"]
+  :dependencies [[jig/protocols ~version]
+                 [org.clojure/clojurescript "0.0-2138"]
                  [org.clojure/java.classpath "0.2.1"]])

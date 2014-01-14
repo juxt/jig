@@ -11,9 +11,12 @@
 
 (load-file "project-header.clj")
 
-(defproject jig/compojure (get-version)
+(def version (get-version))
+
+(defproject jig/compojure version
   :description "A Jig extension that provides support for Compojure routing"
   :url "https://github.com/juxt/jig/tree/master/extensions/compojure"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[compojure "1.1.5"]])
+  :dependencies [[jig/protocols ~version]
+                 [compojure "1.1.5"]])
