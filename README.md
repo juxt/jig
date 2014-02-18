@@ -30,6 +30,8 @@ _instant feedback upon change_ it is difficult to describe the impact it
 can have on your ability to solve difficult problems, produce reliable
 code quickly and make programming more enjoyable.
 
+### Addressing Clojure's code reloading quirks
+
 Clojure, in the tradition of dynamic languages, comes very close to
 providing this kind of experience right out-of-the-box. In LISP,
 functions are bound to vars, which can be rebound, and when functions
@@ -113,7 +115,10 @@ corresponding dev System, Jig separates these concerns. You can use
 Jig's workflow to develop on existing projects that don't have a
 built-in dev workflow.
 
-You can also fork and improve Jig to your own requirements.
+You can also fork and improve Jig to your own requirements. The aim is
+to retain
+[internal re-prgrammability](http://martinfowler.com/bliki/InternalReprogrammability.html)
+to your development tooling.
 
 One Jig project can be used against many different projects, even
 simultaneously (see Components)
