@@ -20,8 +20,18 @@
    jig)
   (:import (jig Lifecycle)))
 
-(defn add-bidi-routes [system config routes]
-  (update-in system [(:jig/id config) ::routes] conj routes))
+(defn add-bidi-routes
+  "Add a bidi route structure to the component's entry in the system
+  map, under a special ::routes key. These can then be found Router
+  component, and can form part of a composite route
+  structure. If :jig.web/context is defined in the config, this is used
+  as a mount point for these routes in the composite route structure."
+  [system config routes]
+  (update-in system [(:jig/id config) ::routes]
+             conj
+             (if-let [webctx (:jig.web/context config)]
+               [webctx [routes]]
+               routes)))
 
 (defn wrap-system
   "Add the system map to the request so it's available to Ring handlers."
@@ -86,7 +96,7 @@
   Lifecycle
   (init [_ system]
     (let [builder (satisfying-dependency system config 'jig.cljs-builder/Builder)]
-      (add-bidi-routes system config [(or (:jig.web/context config) "")
+      (add-bidi-routes system config [""
                                       (->Files {:dir (:output-dir builder)
                                                 :mime-types {"map" "application/javascript"}})])))
 
