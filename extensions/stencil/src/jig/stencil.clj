@@ -90,6 +90,7 @@
     ;; project. This ensures that we do not load the wrong templates due
     ;; to template name conflicts with templates in other projects.
     (let [loader (-> config :jig/project :classloader)]
+      (assert loader "No classloader")
       (->
        system
        (assoc-in
