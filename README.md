@@ -243,7 +243,7 @@ or, if you are using [cider]("http://github.com/clojure-emacs/cider"):
     (insert "(user/reset)")
     (cider-repl-return)))
 
-(global-set-key (kbd "C-c r") cider-repl-reset)
+(global-set-key (kbd "C-c r") 'cider-repl-reset)
 ```
 
 After re-evaluating (or restarting Emacs) you'll be able to reset the
